@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
+using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,7 @@ namespace TestingCenter_Server
     {
         private static string IP_adr;
         private static int Port;
+        private static Thread th;
         static void Main(string[] args)
         {
             try
@@ -21,17 +23,14 @@ namespace TestingCenter_Server
                 IP_adr = Console.ReadLine();
                 Console.WriteLine("Порт для прослушивания:");
                 Port = Convert.ToInt32(Console.ReadLine());
-                //Создаем листенер
-                IPAddress ip = IPAddress.Parse(IP_adr);
-                TcpListener tcp = new TcpListener(ip, Port);
-                tcp.Start();
-
-                ConsoleUpdatingInformation(ref tcp);//Отображение инфы  листенере
-                //Тут цикл листенера. Может запихнуть это все дело в Thread отдельный?...
-                while(true)
+                th = new Thread(WaitingForClient)
                 {
-
-                }
+                    IsBackground=true,
+                    Priority=ThreadPriority.Highest,
+                    Name="WaitingForClient"
+                };
+                th.Start();
+                Thread.Sleep(Timeout.Infinite);
                 //
             }
             catch(FormatException e)
@@ -40,6 +39,26 @@ namespace TestingCenter_Server
                 Main(null);
             }
         }
+        private static void WaitingForClient()
+        {
+            IPAddress ip = IPAddress.Parse(IP_adr);
+            TcpListener tcp = new TcpListener(ip, Port);
+            tcp.Start();
+            ConsoleUpdatingInformation(ref tcp);
+            while (true)
+            {
+                TcpClient client = tcp.AcceptTcpClient();
+                Console.WriteLine("GetStream");
+                NetworkStream stream = client.GetStream();
+                Console.WriteLine("CompRes");
+                string result = "Accepted";
+                byte[] byte_result = Encoding.UTF8.GetBytes(result);
+
+                stream.Write(byte_result, 0, byte_result.Length);
+                Console.WriteLine("Sended");
+            }
+        }
+
         private static void ConsoleUpdatingInformation(ref TcpListener tcp)
         {
             Console.Clear();
