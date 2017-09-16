@@ -27,8 +27,11 @@ namespace TestingCenter_Server
                 tcp.Start();
 
                 ConsoleUpdatingInformation(ref tcp);//Отображение инфы  листенере
-                //Тут цикл листенера
+                //Тут цикл листенера. Может запихнуть это все дело в Thread отдельный?...
+                while(true)
+                {
 
+                }
                 //
             }
             catch(FormatException e)
