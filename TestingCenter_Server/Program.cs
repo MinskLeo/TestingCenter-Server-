@@ -31,35 +31,6 @@ namespace TestingCenter_Server
                 };
                 th.Start();
                 //Start shit
-
-                TcpClient client = tcp.AcceptTcpClient();
-                NetworkStream stream = client.GetStream();
-
-                while (true)
-                {
-                    try
-                    {
-                        byte[] data = new byte[64]; 
-                        StringBuilder builder = new StringBuilder();
-                        int bytes = 0;
-                        do
-                        {
-                            bytes = stream.Read(data, 0, data.Length);
-                            builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
-                        }
-                        while (stream.DataAvailable);
-
-                        string message = builder.ToString();
-                        Console.WriteLine(message);
-                    }
-                    catch
-                    {
-                        Console.WriteLine("Подключение прервано!"); 
-                        Console.ReadLine();
-                        return;
-                    }
-                }
-
                 while (true)
                 {
                     command = Console.ReadLine();
@@ -86,6 +57,7 @@ namespace TestingCenter_Server
         }
         private static void WaitingForClient()
         {
+            //Тут мы запускам прослушку
             IPAddress ip = IPAddress.Parse("127.0.0.1");
             tcp = new TcpListener(ip, Port);
             tcp.Start();
@@ -94,11 +66,18 @@ namespace TestingCenter_Server
             {
                 TcpClient client = tcp.AcceptTcpClient();
                 NetworkStream stream = client.GetStream();
-                string result = "Accepted";
-                byte[] byte_result = Encoding.UTF8.GetBytes(result);
+                byte[] data = new byte[64];
+                StringBuilder builder = new StringBuilder();
+                int bytes = 0;
+                do
+                {
+                    bytes = stream.Read(data, 0, data.Length);
+                    builder.Append(Encoding.UTF8.GetString(data, 0, bytes));
+                }
+                while (stream.DataAvailable);
 
-                stream.Write(byte_result, 0, byte_result.Length);
-                Console.WriteLine("Sended");
+                string message = builder.ToString();
+                Console.WriteLine(message);
             }
         }
 
