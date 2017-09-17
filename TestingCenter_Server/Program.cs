@@ -12,21 +12,17 @@ namespace TestingCenter_Server
 {
     class Program
     {
-        /*private static string IP_adr;
-        private static int Port;*/
-        private const string IP_adr = "localhost";
-        private const int Port = 8888;
+        private static int Port = 8888;
         private static Thread th;
+        private static TcpListener tcp;
+        private static string command;
+
         static void Main(string[] args)
         {
+            Console.WriteLine("Port:");
+            Port = Convert.ToInt32(Console.ReadLine());
             try
             {
-                /*Console.WriteLine("IP адрес для прослушивания: (напр. 127.0.0.1)");
-                IP_adr = Console.ReadLine();
-                Console.WriteLine("Порт для прослушивания:");
-                Port = Convert.ToInt32(Console.ReadLine());*/
-
-
                 th = new Thread(WaitingForClient)
                 {
                     IsBackground=true,
@@ -34,8 +30,35 @@ namespace TestingCenter_Server
                     Name="WaitingForClient"
                 };
                 th.Start();
-                Thread.Sleep(Timeout.Infinite);
-                //
+                //Start shit
+                while(true)
+                {
+                    command = Console.ReadLine();
+                    switch(command)
+                    {
+                        case "stop":
+                            if(th.IsAlive)
+                            {
+                                tcp.Stop();
+                                th.Abort();
+                                Console.WriteLine("Status: "+th.ThreadState);
+                                Console.WriteLine("Exit? (Y\\N)");
+                                if(Console.ReadKey().Key==ConsoleKey.Y)
+                                {
+                                    return;
+                                }
+                            }
+                            break;
+                        case "start":
+                            if(th.IsAlive==false)
+                            {
+                                th.Start();
+                            }
+                            break;
+                    }
+                    ConsoleUpdatingInformation();
+                }
+                //End shit
             }
             catch(FormatException e)
             {
@@ -45,16 +68,14 @@ namespace TestingCenter_Server
         }
         private static void WaitingForClient()
         {
-            IPAddress ip = IPAddress.Parse(IP_adr);
-            TcpListener tcp = new TcpListener(ip, Port);
+            IPAddress ip = IPAddress.Parse("127.0.0.1");
+            tcp = new TcpListener(ip, Port);
             tcp.Start();
-            ConsoleUpdatingInformation(ref tcp);
+            ConsoleUpdatingInformation();
             while (true)
             {
                 TcpClient client = tcp.AcceptTcpClient();
-                Console.WriteLine("GetStream");
                 NetworkStream stream = client.GetStream();
-                Console.WriteLine("CompRes");
                 string result = "Accepted";
                 byte[] byte_result = Encoding.UTF8.GetBytes(result);
 
@@ -63,19 +84,26 @@ namespace TestingCenter_Server
             }
         }
 
-        private static void ConsoleUpdatingInformation(ref TcpListener tcp)
+        private static void ConsoleUpdatingInformation()
         {
             Console.Clear();
-            Console.WriteLine("IP: "+IP_adr);
             Console.WriteLine("Port: "+Port);
-            Console.WriteLine("IncomingRequests: "+tcp.Pending());
-            if(tcp.Pending())
+            try
             {
-                Console.WriteLine("Отвечаем на запрос...");
+                Console.WriteLine("IncomingRequests: " + tcp.Pending());
+                if (tcp.Pending())
+                {
+                    Console.WriteLine("Отвечаем на запрос...");
+                }
+                else
+                {
+                    Console.WriteLine("Сервер запущен. Ожидание запросов...");
+                }
             }
-            else
+            catch(InvalidOperationException)
             {
-                Console.WriteLine("Сервер запущен. Ожидание запросов...");
+                Console.WriteLine("Сервер остановлен");
+                return;
             }
         }
     }
