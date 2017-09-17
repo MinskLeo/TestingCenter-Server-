@@ -31,7 +31,36 @@ namespace TestingCenter_Server
                 };
                 th.Start();
                 //Start shit
-                while(true)
+
+                TcpClient client = tcp.AcceptTcpClient();
+                NetworkStream stream = client.GetStream();
+
+                while (true)
+                {
+                    try
+                    {
+                        byte[] data = new byte[64]; 
+                        StringBuilder builder = new StringBuilder();
+                        int bytes = 0;
+                        do
+                        {
+                            bytes = stream.Read(data, 0, data.Length);
+                            builder.Append(Encoding.Unicode.GetString(data, 0, bytes));
+                        }
+                        while (stream.DataAvailable);
+
+                        string message = builder.ToString();
+                        Console.WriteLine(message);
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Подключение прервано!"); 
+                        Console.ReadLine();
+                        return;
+                    }
+                }
+
+                while (true)
                 {
                     command = Console.ReadLine();
                     switch(command)
