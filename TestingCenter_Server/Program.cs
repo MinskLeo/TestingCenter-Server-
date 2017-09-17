@@ -12,17 +12,21 @@ namespace TestingCenter_Server
 {
     class Program
     {
-        private static string IP_adr;
-        private static int Port;
+        /*private static string IP_adr;
+        private static int Port;*/
+        private const string IP_adr = "localhost";
+        private const int Port = 8888;
         private static Thread th;
         static void Main(string[] args)
         {
             try
             {
-                Console.WriteLine("IP адрес для прослушивания: (напр. 127.0.0.1)");
+                /*Console.WriteLine("IP адрес для прослушивания: (напр. 127.0.0.1)");
                 IP_adr = Console.ReadLine();
                 Console.WriteLine("Порт для прослушивания:");
-                Port = Convert.ToInt32(Console.ReadLine());
+                Port = Convert.ToInt32(Console.ReadLine());*/
+
+
                 th = new Thread(WaitingForClient)
                 {
                     IsBackground=true,
