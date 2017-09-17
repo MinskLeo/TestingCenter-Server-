@@ -19,10 +19,10 @@ namespace TestingCenter_Server
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Port:");
-            Port = Convert.ToInt32(Console.ReadLine());
             try
             {
+                Console.WriteLine("Port:");
+                Port = Convert.ToInt32(Console.ReadLine());
                 th = new Thread(WaitingForClient)
                 {
                     IsBackground=true,
@@ -41,28 +41,17 @@ namespace TestingCenter_Server
                             {
                                 tcp.Stop();
                                 th.Abort();
-                                Console.WriteLine("Status: "+th.ThreadState);
-                                Console.WriteLine("Exit? (Y\\N)");
-                                if(Console.ReadKey().Key==ConsoleKey.Y)
-                                {
-                                    return;
-                                }
-                            }
-                            break;
-                        case "start":
-                            if(th.IsAlive==false)
-                            {
-                                th.Start();
+                                Console.WriteLine("Сервер остановлен. Нажмите любую кнопку для закрытия приложения");
+                                Console.ReadKey();
+                                return;
                             }
                             break;
                     }
-                    ConsoleUpdatingInformation();
                 }
                 //End shit
             }
             catch(FormatException e)
             {
-                Console.WriteLine(e.Message + "\n" + e.StackTrace);
                 Main(null);
             }
         }
@@ -88,22 +77,14 @@ namespace TestingCenter_Server
         {
             Console.Clear();
             Console.WriteLine("Port: "+Port);
-            try
+            Console.WriteLine("IncomingRequests: " + tcp.Pending());
+            if (tcp.Pending())
             {
-                Console.WriteLine("IncomingRequests: " + tcp.Pending());
-                if (tcp.Pending())
-                {
-                    Console.WriteLine("Отвечаем на запрос...");
-                }
-                else
-                {
-                    Console.WriteLine("Сервер запущен. Ожидание запросов...");
-                }
+                Console.WriteLine("Отвечаем на запрос...");
             }
-            catch(InvalidOperationException)
+            else
             {
-                Console.WriteLine("Сервер остановлен");
-                return;
+                Console.WriteLine("Сервер запущен. Ожидание запросов...");
             }
         }
     }
