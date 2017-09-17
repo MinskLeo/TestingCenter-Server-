@@ -24,7 +24,7 @@ namespace TestingCenter_Server
                 Console.WriteLine("Port:");
                 Port = Convert.ToInt32(Console.ReadLine());
                 th = new Thread(WaitingForClient)
-                {
+                { 
                     IsBackground=true,
                     Priority=ThreadPriority.Highest,
                     Name="WaitingForClient"
