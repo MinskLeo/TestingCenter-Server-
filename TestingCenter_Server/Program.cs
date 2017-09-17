@@ -66,7 +66,7 @@ namespace TestingCenter_Server
             {
                 TcpClient client = tcp.AcceptTcpClient();
                 NetworkStream stream = client.GetStream();
-                byte[] data = new byte[64];
+                byte[] data = new byte[256];
                 StringBuilder builder = new StringBuilder();
                 int bytes = 0;
                 do
@@ -77,7 +77,13 @@ namespace TestingCenter_Server
                 while (stream.DataAvailable);
 
                 string message = builder.ToString();
-                Console.WriteLine(message);
+                Console.WriteLine("Запрос: "+message);//Debug: сообщение, которое пришло
+                //Тут блок проверки совпадений в базе и отправка ответа
+                //Debug
+                string buf = "login_NO";
+                byte[] response = Encoding.UTF8.GetBytes(buf);
+                stream.Write(response,0,response.Length);
+                Console.WriteLine("Ответ: "+buf);
             }
         }
 
