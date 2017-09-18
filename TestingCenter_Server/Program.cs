@@ -50,40 +50,47 @@ namespace TestingCenter_Server
                 }
                 //End shit
             }
-            catch(FormatException e)
+            catch(FormatException)
             {
                 Main(null);
             }
         }
         private static void WaitingForClient()
         {
-            //Тут мы запускам прослушку
-            IPAddress ip = IPAddress.Parse("127.0.0.1");
-            tcp = new TcpListener(ip, Port);
-            tcp.Start();
-            ConsoleUpdatingInformation();
-            while (true)
+            try
             {
-                TcpClient client = tcp.AcceptTcpClient();
-                NetworkStream stream = client.GetStream();
-                byte[] data = new byte[256];
-                StringBuilder builder = new StringBuilder();
-                int bytes = 0;
-                do
+                //Тут мы запускам прослушку
+                IPAddress ip = IPAddress.Parse("127.0.0.1");
+                tcp = new TcpListener(ip, Port);
+                tcp.Start();
+                ConsoleUpdatingInformation();
+                while (true)
                 {
-                    bytes = stream.Read(data, 0, data.Length);
-                    builder.Append(Encoding.UTF8.GetString(data, 0, bytes));
-                }
-                while (stream.DataAvailable);
+                    TcpClient client = tcp.AcceptTcpClient();
+                    NetworkStream stream = client.GetStream();
+                    byte[] data = new byte[256];
+                    StringBuilder builder = new StringBuilder();
+                    int bytes = 0;
+                    do
+                    {
+                        bytes = stream.Read(data, 0, data.Length);
+                        builder.Append(Encoding.UTF8.GetString(data, 0, bytes));
+                    }
+                    while (stream.DataAvailable);
 
-                string message = builder.ToString();
-                Console.WriteLine("Запрос: "+message);//Debug: сообщение, которое пришло
-                //Тут блок проверки совпадений в базе и отправка ответа
-                //Debug
-                string buf = "login_NO";
-                byte[] response = Encoding.UTF8.GetBytes(buf);
-                stream.Write(response,0,response.Length);
-                Console.WriteLine("Ответ: "+buf);
+                    string message = builder.ToString();
+                    Console.WriteLine("Запрос: " + message);//Debug: сообщение, которое пришло
+                                                            //Тут блок проверки совпадений в базе и отправка ответа
+                                                            //Debug
+                    string buf = "login_NNN";
+                    byte[] response = Encoding.UTF8.GetBytes(buf);
+                    stream.Write(response, 0, response.Length);
+                    Console.WriteLine("Ответ: " + buf);
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message+"\n"+e.StackTrace);
             }
         }
 
