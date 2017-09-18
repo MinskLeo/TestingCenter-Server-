@@ -81,11 +81,23 @@ namespace TestingCenter_Server
                     string message = builder.ToString();
                     Console.WriteLine("Запрос: " + message);//Debug: сообщение, которое пришло
                                                             //Тут блок проверки совпадений в базе и отправка ответа
-                                                            //Debug
-                    string buf = "login_NNN";
-                    byte[] response = Encoding.UTF8.GetBytes(buf);
-                    stream.Write(response, 0, response.Length);
-                    Console.WriteLine("Ответ: " + buf);
+
+                    //Debug
+                    string[] buf = message.Split('_');
+                    //Тут будут описаны варианты запросов
+                    //buf[0]==login это сообщение от логин скрина
+                    //buf[0]==
+                    switch(buf[0])
+                    {
+                        case "login":
+                            string send = "login_Сюняков_Андрей_Андреевич";//login_NNN
+                            byte[] response = Encoding.UTF8.GetBytes(send);
+                            stream.Write(response, 0, response.Length);
+                            Console.WriteLine("Ответ: " + send);
+                            break;
+                    }
+                    //
+                    
                 }
             }
             catch(Exception e)
