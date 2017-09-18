@@ -33,5 +33,16 @@ namespace TestingCenter_Server.Properties {
                 return ((string)(this["studentsConnectionString"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Provider=Microsoft.ACE.OLEDB.12.0;Data Source=|DataDirectory|\\bin\\Debug\\databases" +
+            "\\studentsMDB.accdb")]
+        public string studentsMDBConnectionString {
+            get {
+                return ((string)(this["studentsMDBConnectionString"]));
+            }
+        }
     }
 }
