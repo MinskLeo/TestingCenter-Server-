@@ -16,6 +16,7 @@ namespace TestingCenter_Server
         private static Thread th;
         private static TcpListener tcp;
         private static string command;
+        private static studentsDataSet database = new studentsDataSet();
 
         static void Main(string[] args)
         {
@@ -46,6 +47,14 @@ namespace TestingCenter_Server
                                 return;
                             }
                             break;
+                        case "database":
+                            Console.WriteLine("Database?:");
+                            if(Console.ReadLine().Equals("info"))
+                            {
+                                Console.WriteLine("Rows: "+ database.identificators.Rows.Count);//СУКА НЕ ВОРКАЕТ
+                                Console.WriteLine("Columns: "+database.identificators.Columns.Count);
+                            }
+                            break;
                     }
                 }
                 //End shit
@@ -67,6 +76,7 @@ namespace TestingCenter_Server
                 while (true)
                 {
                     TcpClient client = tcp.AcceptTcpClient();
+                    ConsoleUpdatingInformation();//Debug
                     NetworkStream stream = client.GetStream();
                     byte[] data = new byte[256];
                     StringBuilder builder = new StringBuilder();
@@ -90,6 +100,22 @@ namespace TestingCenter_Server
                     switch(buf[0])
                     {
                         case "login":
+                            //Debug. Пробую на ощупь базы данных
+                            Console.WriteLine("Rows: "+ database.identificators.Rows.Count);
+                            //1.database.identificators.Rows.Count (не прокатило)
+                            //2.database.identificators.IDColumn.Table.Rows.Count (еще не проверил)
+                            for (int i=0;i<database.identificators.Rows.Count;i++)//Не считывает КОЛИЧЕСТВО СТРОК--------------------------------------------
+                            {
+                                if(buf[0].CompareTo(database.identificators.IDColumn.Table.Rows[i])==0)
+                                {
+                                    Console.WriteLine("Найдено совпадение!");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Совпадений нет");
+                                }
+                            }
+                            //
                             string send = "login_Сюняков_Андрей_Андреевич";//login_NNN
                             byte[] response = Encoding.UTF8.GetBytes(send);
                             stream.Write(response, 0, response.Length);
@@ -108,7 +134,7 @@ namespace TestingCenter_Server
 
         private static void ConsoleUpdatingInformation()
         {
-            Console.Clear();
+            //Console.Clear();
             Console.WriteLine("Port: "+Port);
             Console.WriteLine("IncomingRequests: " + tcp.Pending());
             if (tcp.Pending())
