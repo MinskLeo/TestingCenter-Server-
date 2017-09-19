@@ -134,15 +134,31 @@ namespace TestingCenter_Server
                             break;
                         case "testlist":
                             //Список возможных тестов
-                            //testlist_специальность_семестр
-                            string[] strings;
-                            switch(buf[1])
+                            //testlist_id (немножко передумал вариант)
+
+                            //тут надо подключиться к базе данных, и по ID проверить, какая у человека специальность и семестр
+                            string file = "POIT_2";//DEBUG
+                            //дальше свитч по специальностям (p.s. Можем вычеркнуть отсюда семестр, т.к. получится слишком дохера работы
+                            string InFIle=null;
+                            string answer=null;
+                            string[] answ_mas;
+                            switch(file)
                             {
-                                case "POIT":
-                                    strings = File.ReadAllLines("testslists\\POIT.txt");
-                                    //Хз как тут че писать-----------------------------------------------------
+                                case "POIT_1":
+                                    InFIle = "testlist\\POIT_1.txt";
+                                    answer = File.ReadAllLines(InFIle).Length.ToString();
+                                    break;
+                                case "POIT_2":
+                                    InFIle = "testlist\\POIT_2.txt";
+                                    answer = File.ReadAllLines(InFIle).Length.ToString();
+                                    break;
+                                case "POIT_3":
+                                    InFIle = "testlist\\POIT_3.txt";
+                                    answer = File.ReadAllLines(InFIle).Length.ToString();
                                     break;
                             }
+                            //Ниже будет отправка данных по строке, потихонечку
+                            //ДОПИЛИТЬ ОТПРАВКУ СТРОК НА КЛИЕНТ!----------------------------------
                             break;
                         case "file":
                             //Получение данных из файла
@@ -150,7 +166,7 @@ namespace TestingCenter_Server
                             break;
                     }
                     //
-                    
+                    stream.Close();//Закрываем поток, когда закончили работать
                 }
             }
             catch(Exception e)
