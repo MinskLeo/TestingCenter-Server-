@@ -51,7 +51,7 @@ namespace TestingCenter_Server
                             Console.WriteLine("Database?:");
                             if(Console.ReadLine().Equals("info"))
                             {
-                                Console.WriteLine("Rows: "+ database.identificators.Rows.Count);//СУКА НЕ ВОРКАЕТ
+                                Console.WriteLine("Rows: "+database.identificators.Rows.Count);//СУКА НЕ ВОРКАЕТ
                                 Console.WriteLine("Columns: "+database.identificators.Columns.Count);
                             }
                             break;
@@ -94,10 +94,11 @@ namespace TestingCenter_Server
 
                     //Debug
                     string[] buf = message.Split('_');
+                    byte[] response;
                     //Тут будут описаны варианты запросов
                     //buf[0]==login это сообщение от логин скрина
                     //buf[0]==
-                    switch(buf[0])
+                    switch (buf[0])
                     {
                         case "login":
                             //Debug. Пробую на ощупь базы данных
@@ -117,9 +118,25 @@ namespace TestingCenter_Server
                             }
                             //
                             string send = "login_Сюняков_Андрей_Андреевич";//login_NNN
-                            byte[] response = Encoding.UTF8.GetBytes(send);
+                            response = Encoding.UTF8.GetBytes(send);
                             stream.Write(response, 0, response.Length);
                             Console.WriteLine("Ответ: " + send);
+                            break;
+                        case "testlist":
+                            //Список возможных тестов
+                            //testlist_специальность_семестр
+                            string[] strings;
+                            switch(buf[1])
+                            {
+                                case "POIT":
+                                    strings = File.ReadAllLines("testslists\\POIT.txt");
+                                    //Хз как тут че писать-----------------------------------------------------
+                                    break;
+                            }
+                            break;
+                        case "file":
+                            //Получение данных из файла
+                            //file_названиеПредмета
                             break;
                     }
                     //
