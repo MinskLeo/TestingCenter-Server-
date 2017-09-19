@@ -79,7 +79,6 @@ namespace TestingCenter_Server
         {
             try
             {
-                //Тут мы запускам прослушку
                 IPAddress ip = IPAddress.Parse("127.0.0.1");
                 tcp = new TcpListener(ip, Port);
                 tcp.Start();
