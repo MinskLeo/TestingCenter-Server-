@@ -56,6 +56,17 @@ namespace TestingCenter_Server
                             }
                             break;
                     }
+                  /*  if (command == "stop")
+                    {
+                        if (th.IsAlive)
+                        {
+                            tcp.Stop();
+                            th.Abort();
+                            Console.WriteLine("Сервер остановлен. Нажмите любую кнопку для закрытия приложения");
+                            Console.ReadKey();
+                            return; 
+                        }
+                    }*/
                 }
                 //End shit
             }
@@ -165,4 +176,3 @@ namespace TestingCenter_Server
         }
     }
 }
-//Нужен метод для проверки корректоности ввода порта и айпишника. Иначе Демедович развалит кабину
