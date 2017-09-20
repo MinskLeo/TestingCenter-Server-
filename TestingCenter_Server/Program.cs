@@ -86,7 +86,8 @@ namespace TestingCenter_Server
                 tcp.Start();
                 Console.Clear();//DEBUG
                 Console.WriteLine("Port: "+Port);//DEBUG
-                //ConsoleUpdatingInformation();//Возможно лучше всего будет выкинуть ненужную хуиту с проекта. Только консоль засоряет
+                //ConsoleUpdatingInformation();//Возможно лучше всего будет выкинуть ненужную хуиту с проекта. Только консоль засоряет 
+                //как все воркать будет уберем из консоли все ненужное
                 while (true)
                 {
                     TcpClient client = tcp.AcceptTcpClient();
@@ -165,6 +166,8 @@ namespace TestingCenter_Server
                                     Console.WriteLine(TestsList[i]);
                                 }
                                 Console.WriteLine("Список тестов сериализован!");//DEBUG
+                                //Я погуглил оно короче в юникоде все пересылает попробуй стринг билдер с UTF8 на UNICODE перевести мб пофиксится тот трабл с текстом
+                                //Но это неточно 
                             }
 
                             break;
@@ -203,7 +206,9 @@ namespace TestingCenter_Server
     class Question
     {
         private string question;
-        private string q_count;
-        private string[][] answers;
+        private string q_count; 
+        private string[][] answers; // зачем 2х мерный ? решилтипо 1-вопрос 2-ответ
+        // тогда нах q_count если можно .length сделать по данному массиву 
+        //P.S. мб я чего не понял 
     }
 }
