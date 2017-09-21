@@ -26,6 +26,7 @@ namespace TestingCenter_Server
 
             DateTime thisDay = DateTime.Today;
             Console.WriteLine(thisDay.ToString("D"));
+            Console.WriteLine(System.DateTime.Now.ToLongTimeString());
 
             try
             {
