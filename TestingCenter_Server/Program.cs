@@ -19,9 +19,14 @@ namespace TestingCenter_Server
         private static TcpListener tcp;
         private static string command;
         private static studentsDataSet database = new studentsDataSet();
+        public static DateTime Today { get; }
 
         static void Main(string[] args)
         {
+
+            DateTime thisDay = DateTime.Today;
+            Console.WriteLine(thisDay.ToString("D"));
+
             try
             {
                 Console.WriteLine("Port:");
