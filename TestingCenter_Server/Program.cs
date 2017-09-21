@@ -27,8 +27,19 @@ namespace TestingCenter_Server
         {
             try
             {
-                Console.WriteLine("Port:");
-                Port = Convert.ToInt32(Console.ReadLine());
+                while (true)
+                {
+                    Console.WriteLine("Port:");
+                    Port = Convert.ToInt32(Console.ReadLine());
+
+                    if (Port <= 0)
+                    {
+                        Console.WriteLine("Error!!! Port can't be <= 0");
+                    }
+                    else break;
+
+                }
+
                 th = new Thread(WaitingForClient)
                 {
                     IsBackground = true,
@@ -189,12 +200,10 @@ namespace TestingCenter_Server
     }
 
     [Serializable]//Сериализация
-    class Question
+  /*  class Question
     {
         private string question;
         private string q_count; 
-        private string[][] answers; // зачем 2х мерный ? решилтипо 1-вопрос 2-ответ
-        // тогда нах q_count если можно .length сделать по данному массиву 
-        //P.S. мб я чего не понял 
-    }
+        private string[][] answers;
+    }*/
 }
