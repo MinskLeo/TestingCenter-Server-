@@ -20,6 +20,8 @@ namespace TestingCenter_Server
         private static TcpListener tcp;
         private static string command;
         private static SQLiteConnection database;
+        private static SQLiteCommand database_commands;
+        private static SQLiteDataReader database_reader;
 
         static void Main(string[] args)
         {
@@ -41,6 +43,8 @@ namespace TestingCenter_Server
                     throw new SQLiteException ();
                 database = new SQLiteConnection("Data Source=databases\\Students.db;Version=3;UTF8Encoding=True;");
                 database.Open();//Открываем БД
+                database_commands = database.CreateCommand();//Создаем командный объект
+                database_reader = database_commands.ExecuteReader();//Создаем ридер, способный считывать данные
 
                 //Конец блока с БД
 
