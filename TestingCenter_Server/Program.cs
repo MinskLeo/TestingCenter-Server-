@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
+using System.Data.SQLite;
 using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.Generic;
@@ -18,14 +19,10 @@ namespace TestingCenter_Server
         private static Thread th;
         private static TcpListener tcp;
         private static string command;
-        public static DateTime Today { get; }
+        private static SQLiteConnection database;
 
         static void Main(string[] args)
         {
-            DateTime thisDay = DateTime.Today;
-            Console.WriteLine(thisDay.ToString("D"));
-            Console.WriteLine(System.DateTime.Now.ToLongTimeString());
-
             try
             {
                 Console.WriteLine("Port:");
@@ -37,7 +34,16 @@ namespace TestingCenter_Server
                     Name = "WaitingForClient"
                 };
                 th.Start();
-                //Start shit
+                Console.WriteLine("Server started!"+DateTime.Now);
+
+                //Тут блок связанный с БД
+                if (!File.Exists("databases\\Students.db"))
+                    throw new SQLiteException ();
+                database = new SQLiteConnection("Data Source=databases\\Students.db;Version=3;UTF8Encoding=True;");
+                database.Open();//Открываем БД
+
+                //Конец блока с БД
+
                 while (true)
                 {
                     command = Console.ReadLine();
@@ -48,7 +54,7 @@ namespace TestingCenter_Server
                             {
                                 tcp.Stop();
                                 th.Abort();
-                                Console.WriteLine("Сервер остановлен. Нажмите любую кнопку для закрытия приложения");
+                                Console.WriteLine("The server is stopped. Press any button to close the application");
                                 Console.ReadKey();
                                 return;
                             }
@@ -73,11 +79,21 @@ namespace TestingCenter_Server
                           }
                       }*/
                 }
-                //End shit
             }
             catch (FormatException)
             {
                 Main(null);
+            }
+            catch(SQLiteException ex)//Проблемы с экзепшоном
+            {
+                //Ловим траблы с БД
+                Console.WriteLine("Troubles with database:");
+                Console.WriteLine(ex.Message + "\n" + ex.StackTrace);
+                tcp.Stop();
+                //th.Abort();
+                Console.WriteLine("The server is stopped. Press any button to close the application");
+                Console.ReadKey();
+                return;
             }
         }
         private static void WaitingForClient()
@@ -94,7 +110,6 @@ namespace TestingCenter_Server
                 while (true)
                 {
                     TcpClient client = tcp.AcceptTcpClient();
-                    ConsoleUpdatingInformation();//Debug
                     NetworkStream stream = client.GetStream();
                     byte[] data = new byte[256];
                     StringBuilder builder = new StringBuilder();
@@ -107,10 +122,7 @@ namespace TestingCenter_Server
                     while (stream.DataAvailable);
 
                     string message = builder.ToString();
-                    Console.WriteLine("Запрос: " + message);//Debug: сообщение, которое пришло
-                                                            //Тут блок проверки совпадений в базе и отправка ответа
-
-                    //Debug
+                    Console.WriteLine("Request: " + message);
                     string[] buf = message.Split('_');
                     string send = null;//Сообщение ответа
                     byte[] response;//Переведенное сообщение ответа
@@ -157,13 +169,8 @@ namespace TestingCenter_Server
                                 }
                                 Console.WriteLine("Список тестов сериализован!");//DEBUG
                                 //Я погуглил оно короче в юникоде все пересылает попробуй стринг билдер с UTF8 на UNICODE перевести мб пофиксится тот трабл с текстом
-                                //Но это неточно 
+                                //Но это неточно
                             }
-
-                            break;
-                        case "file":
-                            //Получение данных из файла
-                            //file_названиеПредмета
                             break;
                     }
                     //
@@ -173,21 +180,6 @@ namespace TestingCenter_Server
             catch (Exception e)
             {
                 Console.WriteLine(e.Message + "\n" + e.StackTrace);
-            }
-        }
-
-        private static void ConsoleUpdatingInformation()
-        {
-            //Console.Clear();
-            //Console.WriteLine("Port: " + Port);
-            //Console.WriteLine("IncomingRequests: " + tcp.Pending());
-            if (tcp.Pending())
-            {
-                Console.WriteLine("Отвечаем на запрос...");
-            }
-            else
-            {
-                Console.WriteLine("Сервер запущен. Ожидание запросов...");
             }
         }
     }
