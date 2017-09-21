@@ -18,12 +18,10 @@ namespace TestingCenter_Server
         private static Thread th;
         private static TcpListener tcp;
         private static string command;
-        private static studentsDataSet database = new studentsDataSet();
         public static DateTime Today { get; }
 
         static void Main(string[] args)
         {
-
             DateTime thisDay = DateTime.Today;
             Console.WriteLine(thisDay.ToString("D"));
 
@@ -58,8 +56,7 @@ namespace TestingCenter_Server
                             Console.WriteLine("Database?:");
                             if (Console.ReadLine().Equals("info"))
                             {
-                                Console.WriteLine("Rows: " + database.identificators.Rows.Count);//СУКА НЕ ВОРКАЕТ
-                                Console.WriteLine("Columns: " + database.identificators.Columns.Count);
+                                //-------------------------------------------------------------------Тут было кол во строк\столбцев
                             }
                             break;
                     }
@@ -122,23 +119,10 @@ namespace TestingCenter_Server
                     switch (buf[0])
                     {
                         case "login":
-                            //Debug. Пробую на ощупь базы данных
-                            Console.WriteLine("Rows: " + database.identificators.Rows.Count);
-                            //1.database.identificators.Rows.Count (не прокатило)
-                            //2.database.identificators.IDColumn.Table.Rows.Count (еще не проверил)
-                            for (int i = 0; i < database.identificators.Rows.Count; i++)//Не считывает КОЛИЧЕСТВО СТРОК--------------------------------------------
-                            {
-                                if (buf[0].CompareTo(database.identificators.IDColumn.Table.Rows[i]) == 0)
-                                {
-                                    Console.WriteLine("Найдено совпадение!");
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Совпадений нет");
-                                }
-                            }
-                            //
-                            send = "login_Сюняков_Андрей_Андреевич";//login_NNN
+                            //Поиск по базе данных
+                            //До сюда---------------------------------------------------------------
+
+                            send = "login_Сюняков_Андрей_Андреевич";//login_NNN    //DEBUG
                             response = Encoding.UTF8.GetBytes(send);
                             stream.Write(response, 0, response.Length);
                             Console.WriteLine("Ответ: " + send);
