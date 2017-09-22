@@ -152,11 +152,22 @@ namespace TestingCenter_Server
                     //buf[0]==login это сообщение от логин скрина
                     switch (buf[0])
                     {
-                        case "login":
+                        case "login"://------------------------------------------------------------------------------------------------------------------[]
                             //Поиск по базе данных
+                            Command = "SELECT Id FROM students WHERE Id="+buf[1]+";";//Типо воркает
+                            database_commands.CommandText = Command;
                             SQLiteDataReader reader = database_commands.ExecuteReader();
-                            Command = "SELECT Id";//-----------------------------------------------------------------------------------------------ДОПИЛИТЬ!!!!
+                                while(reader.Read())
+                                {
+                                    Console.WriteLine((object)reader.GetValue(0));
+                                    if(reader.GetValue(0).ToString().Equals(buf[1]))
+                                    {
+                                        Console.WriteLine("NICE");
+                                    }
+                                }
                             reader.Close();
+                            ///DEBUG
+                            Console.WriteLine("Ended");
                             //До сюда---------------------------------------------------------------
                             send = "login_Сюняков_Андрей_Андреевич";//login_NNN    //DEBUG
                             response = Encoding.UTF8.GetBytes(send);
