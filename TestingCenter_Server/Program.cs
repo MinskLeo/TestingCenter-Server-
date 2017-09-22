@@ -18,10 +18,11 @@ namespace TestingCenter_Server
         private static int Port = 8888;
         private static Thread th;
         private static TcpListener tcp;
-        private static string command;
-        private static SQLiteConnection database;
-        private static SQLiteCommand database_commands;
-        private static SQLiteDataReader database_reader;
+        private static string command;//Для цикла while(true) - пишем вручную в консоль и считываем
+        private static SQLiteConnection database;//Сама база данных
+        private static SQLiteCommand database_commands;//Объект для отдачи команд БД
+        //private static SQLiteDataReader database_reader;//Объект для считывания данных
+        private static string Command;//Строка команды для SQL
 
         static void Main(string[] args)
         {
@@ -55,10 +56,12 @@ namespace TestingCenter_Server
                 database = new SQLiteConnection("Data Source=databases\\Students.db;Version=3;UTF8Encoding=True;");
                 database.Open();//Открываем БД
                 database_commands = database.CreateCommand();//Создаем командный объект
-                database_reader = database_commands.ExecuteReader();//Создаем ридер, способный считывать данные
+                Command = "";//Чисто чтобы не вылетал экзепшон
+                database_commands.CommandText = Command;//Чисто чтобы не вылетал экзепшон
+                Console.WriteLine("State: " + database.State);
+                //database_reader = database_commands.ExecuteReader();//Создаем ридер, способный считывать данные
 
                 //Конец блока с БД
-
                 while (true)
                 {
                     command = Console.ReadLine();
@@ -78,6 +81,9 @@ namespace TestingCenter_Server
                             Console.WriteLine("Database?:");
                             if (Console.ReadLine().Equals("info"))
                             {
+                                Command = "SELECT count(*) FROM students";
+                                database_commands.CommandText = Command;
+                                Console.WriteLine("Rows: "+database_commands.ExecuteScalar());
                                 //-------------------------------------------------------------------Тут было кол во строк\столбцев
                             }
                             break;
@@ -148,8 +154,10 @@ namespace TestingCenter_Server
                     {
                         case "login":
                             //Поиск по базе данных
+                            SQLiteDataReader reader = database_commands.ExecuteReader();
+                            Command = "SELECT Id";//-----------------------------------------------------------------------------------------------ДОПИЛИТЬ!!!!
+                            reader.Close();
                             //До сюда---------------------------------------------------------------
-
                             send = "login_Сюняков_Андрей_Андреевич";//login_NNN    //DEBUG
                             response = Encoding.UTF8.GetBytes(send);
                             stream.Write(response, 0, response.Length);
@@ -199,8 +207,8 @@ namespace TestingCenter_Server
         }
     }
 
-    [Serializable]//Сериализация
-  /*  class Question
+    /*[Serializable]//Сериализация
+    class Question
     {
         private string question;
         private string q_count; 
