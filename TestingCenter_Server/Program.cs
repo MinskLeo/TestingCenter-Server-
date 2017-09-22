@@ -154,22 +154,31 @@ namespace TestingCenter_Server
                     {
                         case "login"://------------------------------------------------------------------------------------------------------------------[]
                             //Поиск по базе данных
-                            Command = "SELECT Id FROM students WHERE Id="+buf[1]+";";//Типо воркает
+                            Command = "SELECT * FROM students";//Типо воркает       "SELECT Id FROM students WHERE Id="+buf[1]+";"
                             database_commands.CommandText = Command;
                             SQLiteDataReader reader = database_commands.ExecuteReader();
-                                while(reader.Read())
+                            while(reader.Read())
+                            {
+                                object id = reader.GetValue(0);
+                                object n = reader.GetValue(1);
+                                object f = reader.GetValue(2);
+                                object m = reader.GetValue(3);
+                                if(id.ToString().Equals(buf[1]))
                                 {
-                                    Console.WriteLine((object)reader.GetValue(0));
-                                    if(reader.GetValue(0).ToString().Equals(buf[1]))
-                                    {
-                                        Console.WriteLine("NICE");
-                                    }
+                                    send = "login_" + n+"_" + f+"_" + m;
+                                    reader.Close();
+                                    break;
                                 }
+                                else
+                                {
+                                    send = "login_NNN";
+                                }
+                            }
                             reader.Close();
                             ///DEBUG
                             Console.WriteLine("Ended");
                             //До сюда---------------------------------------------------------------
-                            send = "login_Сюняков_Андрей_Андреевич";//login_NNN    //DEBUG
+                            //send = "login_Сюняков_Андрей_Андреевич";//login_NNN    //DEBUG
                             response = Encoding.UTF8.GetBytes(send);
                             stream.Write(response, 0, response.Length);
                             Console.WriteLine("Ответ: " + send);
