@@ -21,7 +21,6 @@ namespace TestingCenter_Server
         private static string command;//Для цикла while(true) - пишем вручную в консоль и считываем
         private static SQLiteConnection database;//Сама база данных
         private static SQLiteCommand database_commands;//Объект для отдачи команд БД
-        //private static SQLiteDataReader database_reader;//Объект для считывания данных
         private static string Command;//Строка команды для SQL
 
         static void Main(string[] args)
