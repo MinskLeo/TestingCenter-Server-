@@ -129,17 +129,27 @@ namespace TestingCenter_Server
                 {
                     TcpClient client = tcp.AcceptTcpClient();
                     NetworkStream stream = client.GetStream();
-                    byte[] data = new byte[256];
-                    StringBuilder builder = new StringBuilder();
-                    int bytes = 0;
-                    do
-                    {
-                        bytes = stream.Read(data, 0, data.Length);
-                        builder.Append(Encoding.UTF8.GetString(data, 0, bytes));
-                    }
-                    while (stream.DataAvailable);
+                    //Тестим норм потоки. //DEBUG----------------------------------- Вплоть до ПРОВЕРИТЬ
+                    StreamReader NetReader = new StreamReader(stream);
+                    StreamWriter NetWriter = new StreamWriter(stream);
+                    string message=NetReader.ReadLine();
+                    //NetReader.Close();
+                    //
 
-                    string message = builder.ToString();
+                    //byte[] data = new byte[256];
+                    //StringBuilder builder = new StringBuilder();
+                    //int bytes = 0;
+                    //do
+                    //{
+                    //bytes = stream.Read(data, 0, data.Length);
+                    //builder.Append(Encoding.UTF8.GetString(data, 0, bytes));
+                    //}
+                    //while (stream.DataAvailable);
+
+
+                    //string message = builder.ToString();
+
+                    //ПРОВЕРИТЬ---------------------------------------------------------
                     Console.WriteLine("Request: " + message);
                     string[] buf = message.Split('_');
                     string send = null;//Сообщение ответа
@@ -176,12 +186,16 @@ namespace TestingCenter_Server
                                 }
                             }
                             r_login.Close();
-                            ///DEBUG
-                            Console.WriteLine("Ended");
-                            //До сюда---------------------------------------------------------------
+
+                            Console.WriteLine("Ended");//DEBUG
                             //send = "login_Сюняков_Андрей_Андреевич";//login_NNN    //DEBUG
-                            response = Encoding.UTF8.GetBytes(send);
-                            stream.Write(response, 0, response.Length);
+                            //Очень важный тест!----------------------------------------------------------------------------------//DEBUG
+                            NetWriter.WriteLine(send);
+                            NetWriter.Flush();
+                            NetWriter.Close();
+                            NetReader.Close();
+                            //response = Encoding.UTF8.GetBytes(send);
+                            //stream.Write(response, 0, response.Length);
                             Console.WriteLine("Ответ: " + send);
                             break;
                         case "testslist":
@@ -212,7 +226,8 @@ namespace TestingCenter_Server
                             {
                                 //Не найден студент. Какой то значит косяк. Отправляем клиенту что ошибка базы данных.
                                 Console.WriteLine("No student");//DEBUG
-                                return;
+                                //Тут надо это дописать------------------------------------------------
+                                break;
                             }
                             else
                             {
