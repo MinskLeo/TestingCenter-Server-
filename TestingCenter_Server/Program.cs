@@ -21,7 +21,6 @@ namespace TestingCenter_Server
         private static string command;//Для цикла while(true) - пишем вручную в консоль и считываем
         private static SQLiteConnection database;//Сама база данных
         private static SQLiteCommand database_commands;//Объект для отдачи команд БД
-        //private static SQLiteDataReader database_reader;//Объект для считывания данных
         private static string Command;//Строка команды для SQL
 
         static void Main(string[] args)
@@ -59,7 +58,6 @@ namespace TestingCenter_Server
                 Command = "";//Чисто чтобы не вылетал экзепшон
                 database_commands.CommandText = Command;//Чисто чтобы не вылетал экзепшон
                 Console.WriteLine("State: " + database.State);
-                //database_reader = database_commands.ExecuteReader();//Создаем ридер, способный считывать данные
 
                 //Конец блока с БД
                 while (true)
@@ -126,8 +124,7 @@ namespace TestingCenter_Server
                 tcp.Start();
                 Console.Clear();//DEBUG
                 Console.WriteLine("Port: "+Port);//DEBUG
-                //ConsoleUpdatingInformation();//Возможно лучше всего будет выкинуть ненужную хуиту с проекта. Только консоль засоряет 
-                //как все воркать будет уберем из консоли все ненужное
+
                 while (true)
                 {
                     TcpClient client = tcp.AcceptTcpClient();
@@ -150,23 +147,27 @@ namespace TestingCenter_Server
                     string[] TestsList;
                     //Тут будут описаны варианты запросов
                     //buf[0]==login это сообщение от логин скрина
+                    //---
+                    //ПЕРЕМЕННЫЕ!
+                    object id, n, f, m,term,spec;
+                    //---
                     switch (buf[0])
                     {
-                        case "login"://------------------------------------------------------------------------------------------------------------------[]
+                        case "login":
                             //Поиск по базе данных
                             Command = "SELECT * FROM students";//Типо воркает       "SELECT Id FROM students WHERE Id="+buf[1]+";"
                             database_commands.CommandText = Command;
-                            SQLiteDataReader reader = database_commands.ExecuteReader();
-                            while(reader.Read())
+                            SQLiteDataReader r_login = database_commands.ExecuteReader();
+                            while(r_login.Read())
                             {
-                                object id = reader.GetValue(0);
-                                object n = reader.GetValue(1);
-                                object f = reader.GetValue(2);
-                                object m = reader.GetValue(3);
+                                id = r_login.GetValue(0);//Id
+                                n = r_login.GetValue(1);//Name
+                                f = r_login.GetValue(2);//Famil
+                                m = r_login.GetValue(3);//Otchestvo
                                 if(id.ToString().Equals(buf[1]))
                                 {
                                     send = "login_" + n+"_" + f+"_" + m;
-                                    reader.Close();
+                                    r_login.Close();
                                     break;
                                 }
                                 else
@@ -174,7 +175,7 @@ namespace TestingCenter_Server
                                     send = "login_NNN";
                                 }
                             }
-                            reader.Close();
+                            r_login.Close();
                             ///DEBUG
                             Console.WriteLine("Ended");
                             //До сюда---------------------------------------------------------------
@@ -187,11 +188,44 @@ namespace TestingCenter_Server
                             //Список возможных тестов
                             //testlist_id (немножко передумал вариант)
                             //тут надо подключиться к базе данных, и по ID проверить, какая у человека специальность и семестестр (ЗАПОлНИТЬ С БАЗЫ ДАННЫХ speciality)------------
-                            string specialty = "POIT_2";//DEBUG
-                            string file = "testslist\\" + specialty + ".txt";//Файл с которого будет считывать вопросы и т.п.
-                            if (!File.Exists(file))
+                            Command = "SELECT * FROM students;";
+                            database_commands.CommandText = Command;
+                            SQLiteDataReader r_testslist=database_commands.ExecuteReader();
+                            while(r_testslist.Read())
                             {
-                                Console.WriteLine("Файл списка тестов " + file + " не найден");
+                                id = r_testslist.GetValue(0); 
+                                if(id.ToString().Equals(buf[1]))
+                                {
+                                    //Нам нужно узнать специальность и семестр
+                                    term = r_testslist.GetValue(4);//Столбик с семестром
+                                    spec = r_testslist.GetValue(6);//Столбик со специальностью
+                                    //spec_term
+                                    send = "testslist\\"+spec.ToString() +"_"+ term.ToString();//попадет в if\else и выберет нужный файлик для отправки клиенту
+                                    break;
+                                }
+                                else
+                                {
+                                    send = "testslist_NNN";
+                                }
+                            }
+                            if(send.Equals("testslist_NNN"))
+                            {
+                                //Не найден студент. Какой то значит косяк. Отправляем клиенту что ошибка базы данных.
+                                Console.WriteLine("No student");//DEBUG
+                                return;
+                            }
+                            else
+                            {
+                                send += ".txt";
+                                Console.WriteLine("FILE: "+send);//DEBUG
+                            }
+                            r_testslist.Close();
+                            //END
+                            //string specialty = "POIT_2";//DEBUG----------------------------------------------------------------------
+                            //string file = "testslist\\" + specialty + ".txt";//Файл с которого будет считывать вопросы и т.п.
+                            if (!File.Exists(send))
+                            {
+                                Console.WriteLine("Файл списка тестов " + send + " не найден");
                                 send = "testslist_NNN";
                                 response = Encoding.UTF8.GetBytes(send);
                                 stream.Write(response, 0, response.Length);
@@ -199,7 +233,7 @@ namespace TestingCenter_Server
                             }
                             else
                             {
-                                TestsList = File.ReadAllLines(file);
+                                TestsList = File.ReadAllLines(send);
                                 //Сериализировать и отправить сей массив-список тестов
                                 //Траблы с атрибутом, надо куда то выкинуть массив, где можно будет накинуть атрибут
                                 //Гы, теперь класс Програм может быть сериализован)
