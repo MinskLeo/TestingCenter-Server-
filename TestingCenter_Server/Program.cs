@@ -29,14 +29,14 @@ namespace TestingCenter_Server
             {
                 while (true)
                 {
-                    Console.WriteLine("Port:");
-                    Port = Convert.ToInt32(Console.ReadLine());
+                       Console.WriteLine("Port:");
+                        Port = Convert.ToInt32(Console.ReadLine());
 
-                    if (Port <= 0)
-                    {
-                        Console.WriteLine("Error!!! Port can't be <= 0");
-                    }
-                    else break;
+                        if (Port <= 0)
+                        {
+                            Console.WriteLine("Error!!! Port can't be <= 0");
+                        }
+                        else break;
 
                 }
 
@@ -173,7 +173,7 @@ namespace TestingCenter_Server
                                 id = r_login.GetValue(0);//Id
                                 n = r_login.GetValue(1);//Name
                                 f = r_login.GetValue(2);//Famil
-                                m = r_login.GetValue(3);//Otchestvo
+                                m = r_login.GetValue(3);//Middle name
                                 if(id.ToString().Equals(buf[1]))
                                 {
                                     send = "login_" + n+"_" + f+"_" + m;
