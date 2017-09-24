@@ -29,14 +29,14 @@ namespace TestingCenter_Server
             {
                 while (true)
                 {
-                       Console.WriteLine("Port:");
-                        Port = Convert.ToInt32(Console.ReadLine());
+                    Console.WriteLine("Port:");
+                    Port = Convert.ToInt32(Console.ReadLine());
 
-                        if (Port <= 0)
-                        {
-                            Console.WriteLine("Error!!! Port can't be <= 0");
-                        }
-                        else break;
+                    if (Port <= 0)
+                    {
+                        Console.WriteLine("Error!!! Port can't be <= 0");
+                    }
+                    else break;
 
                 }
 
@@ -47,11 +47,11 @@ namespace TestingCenter_Server
                     Name = "WaitingForClient"
                 };
                 th.Start();
-                Console.WriteLine("Server started!"+DateTime.Now);
+                Console.WriteLine("Server started!" + DateTime.Now);
 
                 //Тут блок связанный с БД
                 if (!File.Exists("databases\\Students.db"))
-                    throw new SQLiteException ();
+                    throw new SQLiteException();
                 database = new SQLiteConnection("Data Source=databases\\Students.db;Version=3;UTF8Encoding=True;");
                 database.Open();//Открываем БД
                 database_commands = database.CreateCommand();//Создаем командный объект
@@ -81,7 +81,7 @@ namespace TestingCenter_Server
                             {
                                 Command = "SELECT count(*) FROM students";
                                 database_commands.CommandText = Command;
-                                Console.WriteLine("Rows: "+database_commands.ExecuteScalar());
+                                Console.WriteLine("Rows: " + database_commands.ExecuteScalar());
                                 //-------------------------------------------------------------------Тут было кол во строк\столбцев
                             }
                             break;
@@ -103,7 +103,7 @@ namespace TestingCenter_Server
             {
                 Main(null);
             }
-            catch(SQLiteException ex)//Проблемы с экзепшоном
+            catch (SQLiteException ex)//Проблемы с экзепшоном
             {
                 //Ловим траблы с БД
                 Console.WriteLine("Troubles with database:");
@@ -123,16 +123,16 @@ namespace TestingCenter_Server
                 tcp = new TcpListener(ip, Port);
                 tcp.Start();
                 Console.Clear();//DEBUG
-                Console.WriteLine("Port: "+Port);//DEBUG
+                Console.WriteLine("Port: " + Port);//DEBUG
 
                 while (true)
                 {
                     TcpClient client = tcp.AcceptTcpClient();
                     NetworkStream stream = client.GetStream();
                     //Тестим норм потоки. //DEBUG----------------------------------- Вплоть до ПРОВЕРИТЬ
-                     //StreamReader NetReader = new StreamReader(stream);
-                     //StreamWriter NetWriter = new StreamWriter(stream);
-                     //string message=NetReader.ReadLine();
+                    //StreamReader NetReader = new StreamReader(stream);
+                    //StreamWriter NetWriter = new StreamWriter(stream);
+                    //string message=NetReader.ReadLine();
                     //NetReader.Close();
                     //
 
@@ -141,8 +141,8 @@ namespace TestingCenter_Server
                     int bytes = 0;
                     do
                     {
-                    bytes = stream.Read(data, 0, data.Length);
-                    builder.Append(Encoding.UTF8.GetString(data, 0, bytes));
+                        bytes = stream.Read(data, 0, data.Length);
+                        builder.Append(Encoding.UTF8.GetString(data, 0, bytes));
                     }
                     while (stream.DataAvailable);
 
@@ -159,7 +159,7 @@ namespace TestingCenter_Server
                     //buf[0]==login это сообщение от логин скрина
                     //---
                     //ПЕРЕМЕННЫЕ!
-                    object id, n, f, m,term,spec;
+                    object id, n, f, m, term, spec;
                     //---
                     switch (buf[0])
                     {
@@ -168,15 +168,15 @@ namespace TestingCenter_Server
                             Command = "SELECT * FROM students";//Типо воркает       "SELECT Id FROM students WHERE Id="+buf[1]+";"
                             database_commands.CommandText = Command;
                             SQLiteDataReader r_login = database_commands.ExecuteReader();
-                            while(r_login.Read())
+                            while (r_login.Read())
                             {
                                 id = r_login.GetValue(0);//Id
                                 n = r_login.GetValue(1);//Name
                                 f = r_login.GetValue(2);//Famil
-                                m = r_login.GetValue(3);//Middle name
-                                if(id.ToString().Equals(buf[1]))
+                                m = r_login.GetValue(3);//Otchestvo
+                                if (id.ToString().Equals(buf[1]))
                                 {
-                                    send = "login_" + n+"_" + f+"_" + m;
+                                    send = "login_" + n + "_" + f + "_" + m;
                                     r_login.Close();
                                     break;
                                 }
@@ -188,12 +188,12 @@ namespace TestingCenter_Server
                             r_login.Close();
 
                             Console.WriteLine("Ended");//DEBUG
-                            //send = "login_Сюняков_Андрей_Андреевич";//login_NNN    //DEBUG
-                            //Очень важный тест!----------------------------------------------------------------------------------//DEBUG
-                             //NetWriter.WriteLine(send);
-                             //NetWriter.Flush();
-                             //NetWriter.Close();
-                             //NetReader.Close();
+                                                       //send = "login_Сюняков_Андрей_Андреевич";//login_NNN    //DEBUG
+                                                       //Очень важный тест!----------------------------------------------------------------------------------//DEBUG
+                                                       //NetWriter.WriteLine(send);
+                                                       //NetWriter.Flush();
+                                                       //NetWriter.Close();
+                                                       //NetReader.Close();
                             response = Encoding.UTF8.GetBytes(send);
                             stream.Write(response, 0, response.Length);
                             Console.WriteLine("Ответ: " + send);
@@ -205,18 +205,18 @@ namespace TestingCenter_Server
                             Console.WriteLine("Начинаю работу с TESTSLITS");//DEBUG
                             Command = "SELECT * FROM students;";
                             database_commands.CommandText = Command;
-                            SQLiteDataReader r_testslist=database_commands.ExecuteReader();
+                            SQLiteDataReader r_testslist = database_commands.ExecuteReader();
                             Console.WriteLine("Начинаю проход по БД");//DEBUG
                             while (r_testslist.Read())
                             {
-                                id = r_testslist.GetValue(0); 
-                                if(id.ToString().Equals(buf[1]))
+                                id = r_testslist.GetValue(0);
+                                if (id.ToString().Equals(buf[1]))
                                 {
                                     //Нам нужно узнать специальность и семестр
                                     term = r_testslist.GetValue(4);//Столбик с семестром
                                     spec = r_testslist.GetValue(6);//Столбик со специальностью
                                     //spec_term
-                                    send = "testslist\\"+spec.ToString() +"_"+ term.ToString();//попадет в if\else и выберет нужный файлик для отправки клиенту
+                                    send = "testslist\\" + spec.ToString() + "_" + term.ToString();//попадет в if\else и выберет нужный файлик для отправки клиенту
                                     break;
                                 }
                                 else
@@ -224,7 +224,7 @@ namespace TestingCenter_Server
                                     send = "testslist_NNN";
                                 }
                             }
-                            if(send.Equals("testslist_NNN"))
+                            if (send.Equals("testslist_NNN"))
                             {
                                 //Не найден студент. Какой то значит косяк. Отправляем клиенту что ошибка базы данных.
                                 Console.WriteLine("No student");//DEBUG
@@ -234,7 +234,7 @@ namespace TestingCenter_Server
                             else
                             {
                                 send += ".txt";
-                                Console.WriteLine("FILE: "+send);//DEBUG
+                                Console.WriteLine("FILE: " + send);//DEBUG
                             }
                             r_testslist.Close();
                             //END
@@ -257,7 +257,7 @@ namespace TestingCenter_Server
                                 BinaryFormatter formatter = new BinaryFormatter();
                                 formatter.Serialize(stream, TestsList);
                                 Console.WriteLine("Запуск сериализации:");
-                                for(int i=0;i<TestsList.Length;i++)
+                                for (int i = 0; i < TestsList.Length; i++)
                                 {
                                     Console.WriteLine(TestsList[i]);
                                 }
