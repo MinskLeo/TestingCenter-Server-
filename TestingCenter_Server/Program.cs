@@ -130,24 +130,24 @@ namespace TestingCenter_Server
                     TcpClient client = tcp.AcceptTcpClient();
                     NetworkStream stream = client.GetStream();
                     //Тестим норм потоки. //DEBUG----------------------------------- Вплоть до ПРОВЕРИТЬ
-                    StreamReader NetReader = new StreamReader(stream);
-                    StreamWriter NetWriter = new StreamWriter(stream);
-                    string message=NetReader.ReadLine();
+                     //StreamReader NetReader = new StreamReader(stream);
+                     //StreamWriter NetWriter = new StreamWriter(stream);
+                     //string message=NetReader.ReadLine();
                     //NetReader.Close();
                     //
 
-                    //byte[] data = new byte[256];
-                    //StringBuilder builder = new StringBuilder();
-                    //int bytes = 0;
-                    //do
-                    //{
-                    //bytes = stream.Read(data, 0, data.Length);
-                    //builder.Append(Encoding.UTF8.GetString(data, 0, bytes));
-                    //}
-                    //while (stream.DataAvailable);
+                    byte[] data = new byte[256];
+                    StringBuilder builder = new StringBuilder();
+                    int bytes = 0;
+                    do
+                    {
+                    bytes = stream.Read(data, 0, data.Length);
+                    builder.Append(Encoding.UTF8.GetString(data, 0, bytes));
+                    }
+                    while (stream.DataAvailable);
 
 
-                    //string message = builder.ToString();
+                    string message = builder.ToString();
 
                     //ПРОВЕРИТЬ---------------------------------------------------------
                     Console.WriteLine("Request: " + message);
@@ -190,22 +190,24 @@ namespace TestingCenter_Server
                             Console.WriteLine("Ended");//DEBUG
                             //send = "login_Сюняков_Андрей_Андреевич";//login_NNN    //DEBUG
                             //Очень важный тест!----------------------------------------------------------------------------------//DEBUG
-                            NetWriter.WriteLine(send);
-                            NetWriter.Flush();
-                            NetWriter.Close();
-                            NetReader.Close();
-                            //response = Encoding.UTF8.GetBytes(send);
-                            //stream.Write(response, 0, response.Length);
+                             //NetWriter.WriteLine(send);
+                             //NetWriter.Flush();
+                             //NetWriter.Close();
+                             //NetReader.Close();
+                            response = Encoding.UTF8.GetBytes(send);
+                            stream.Write(response, 0, response.Length);
                             Console.WriteLine("Ответ: " + send);
                             break;
                         case "testslist":
                             //Список возможных тестов
                             //testlist_id (немножко передумал вариант)
                             //тут надо подключиться к базе данных, и по ID проверить, какая у человека специальность и семестестр (ЗАПОлНИТЬ С БАЗЫ ДАННЫХ speciality)------------
+                            Console.WriteLine("Начинаю работу с TESTSLITS");//DEBUG
                             Command = "SELECT * FROM students;";
                             database_commands.CommandText = Command;
                             SQLiteDataReader r_testslist=database_commands.ExecuteReader();
-                            while(r_testslist.Read())
+                            Console.WriteLine("Начинаю проход по БД");//DEBUG
+                            while (r_testslist.Read())
                             {
                                 id = r_testslist.GetValue(0); 
                                 if(id.ToString().Equals(buf[1]))
@@ -263,6 +265,9 @@ namespace TestingCenter_Server
                                 //Я погуглил оно короче в юникоде все пересылает попробуй стринг билдер с UTF8 на UNICODE перевести мб пофиксится тот трабл с текстом
                                 //Но это неточно
                             }
+                            break;
+                        default:
+                            Console.WriteLine("Вышел в дефаулт");
                             break;
                     }
                     //
