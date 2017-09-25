@@ -158,6 +158,7 @@ namespace TestingCenter_Server
                     //ПЕРЕМЕННЫЕ!
                     object id, n, f, m, term, spec;
                     object dat, mark, subj;
+                    BinaryFormatter binaryFormatter = new BinaryFormatter();
                     //---
                     switch (buf[0])
                     {
@@ -208,7 +209,7 @@ namespace TestingCenter_Server
                             Console.WriteLine("создал объект dataset");
                             adapter.Fill(dataSet);
                             Console.WriteLine("заполнил объект");
-                            BinaryFormatter binaryFormatter = new BinaryFormatter();
+                            //Тут был binaryFormatter
                             Console.WriteLine("сериализую");
                             binaryFormatter.Serialize(stream, dataSet);//Сериализовали целый объект с выборкой по БД
                             Console.WriteLine("ГОТОВО!");
@@ -280,6 +281,21 @@ namespace TestingCenter_Server
                                 //Я погуглил оно короче в юникоде все пересылает попробуй стринг билдер с UTF8 на UNICODE перевести мб пофиксится тот трабл с текстом
                                 //Но это неточно
                             }
+                            break;
+                        case "test":
+                            //test_POIT_3
+                            string[] TEST;
+                            string way= "tests\\" + buf[1] + buf[2] + ".txt";
+                            if(File.Exists(way))
+                            {
+                                TEST = File.ReadAllLines(way);
+                            }
+                            else
+                            {
+                                TEST = new string[0];
+                            }
+
+                            binaryFormatter.Serialize(stream, TEST);
                             break;
                         default:
                             Console.WriteLine("Вышел в дефаулт");
