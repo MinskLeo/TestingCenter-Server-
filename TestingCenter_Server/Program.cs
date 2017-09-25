@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
+using System.Data;
 using System.Data.SQLite;
 using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -160,6 +161,7 @@ namespace TestingCenter_Server
                     //---
                     //ПЕРЕМЕННЫЕ!
                     object id, n, f, m, term, spec;
+                    object dat, mark, subj;
                     //---
                     switch (buf[0])
                     {
@@ -197,6 +199,23 @@ namespace TestingCenter_Server
                             response = Encoding.UTF8.GetBytes(send);
                             stream.Write(response, 0, response.Length);
                             Console.WriteLine("Ответ: " + send);
+                            break;
+                        case "mainscreen":
+                            Command = "SELECT * FROM marks WHERE ID=" + buf[1] + ";";
+                            database_commands.CommandText= "SELECT count(*) FROM marks WHERE ID=" + buf[1] + ";";//DEBUG
+                            Console.WriteLine("Колчиество строк в ответе: "+database_commands.ExecuteScalar());//DEBUG
+                            Console.WriteLine("mainscreen: " + Command);
+
+                            Console.WriteLine("создаю адаптер");
+                            SQLiteDataAdapter adapter = new SQLiteDataAdapter(Command, database.ConnectionString);
+                            DataSet dataSet = new DataSet();
+                            Console.WriteLine("создал объект dataset");
+                            adapter.Fill(dataSet);
+                            Console.WriteLine("заполнил объект");
+                            BinaryFormatter binaryFormatter = new BinaryFormatter();
+                            Console.WriteLine("сериализую");
+                            binaryFormatter.Serialize(stream, dataSet);//Сериализовали целый объект с выборкой по БД
+                            Console.WriteLine("ГОТОВО!");
                             break;
                         case "testslist":
                             //Список возможных тестов
