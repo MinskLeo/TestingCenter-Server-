@@ -149,15 +149,11 @@ namespace TestingCenter_Server
 
 
                     string message = builder.ToString();
-
-                    //ПРОВЕРИТЬ---------------------------------------------------------
                     Console.WriteLine("Request: " + message);
                     string[] buf = message.Split('_');
                     string send = null;//Сообщение ответа
                     byte[] response;//Переведенное сообщение ответа
                     string[] TestsList;
-                    //Тут будут описаны варианты запросов
-                    //buf[0]==login это сообщение от логин скрина
                     //---
                     //ПЕРЕМЕННЫЕ!
                     object id, n, f, m, term, spec;
@@ -167,7 +163,7 @@ namespace TestingCenter_Server
                     {
                         case "login":
                             //Поиск по базе данных
-                            Command = "SELECT * FROM students";//Типо воркает       "SELECT Id FROM students WHERE Id="+buf[1]+";"
+                            Command = "SELECT * FROM students WHERE Id="+buf[1]+";";//Типо воркает       "SELECT Id FROM students WHERE Id="+buf[1]+";"
                             database_commands.CommandText = Command;
                             SQLiteDataReader r_login = database_commands.ExecuteReader();
                             while (r_login.Read())
