@@ -283,7 +283,7 @@ namespace TestingCenter_Server
                             }
                             break;
                         case "test":
-                            //test_POIT_3
+                            //test_Math_3
                             string[] TEST;
                             string way= "tests\\" + buf[1] + buf[2] + ".txt";
                             if(File.Exists(way))
