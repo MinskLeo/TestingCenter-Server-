@@ -157,7 +157,6 @@ namespace TestingCenter_Server
                     //---
                     //ПЕРЕМЕННЫЕ!
                     object id, n, f, m, term, spec;
-                    object dat, mark, subj;
                     BinaryFormatter binaryFormatter = new BinaryFormatter();
                     //---
                     switch (buf[0])
@@ -285,7 +284,8 @@ namespace TestingCenter_Server
                         case "test":
                             //test_Math_3
                             string[] TEST;
-                            string way= "tests\\" + buf[1] + buf[2] + ".txt";
+                            string way= "tests\\" + buf[1]+ "_" + buf[2] + ".txt";
+                            Console.WriteLine("WAY: "+way);
                             if(File.Exists(way))
                             {
                                 TEST = File.ReadAllLines(way);
@@ -294,8 +294,9 @@ namespace TestingCenter_Server
                             {
                                 TEST = new string[0];
                             }
-
+                            Console.WriteLine("SIZE: "+TEST.Length);
                             binaryFormatter.Serialize(stream, TEST);
+                            Console.WriteLine("ОКОНЧИЛ ОТПРАВКУ ФАЙЛА ТЕСТА");
                             break;
                         default:
                             Console.WriteLine("Вышел в дефаулт");
