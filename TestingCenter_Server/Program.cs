@@ -151,13 +151,14 @@ namespace TestingCenter_Server
                     string message = builder.ToString();
                     Console.WriteLine("Request: " + message);
                     string[] buf = message.Split('_');
-                    string send = null;//Сообщение ответа
+                    string send = "0";//Сообщение ответа. P.S. почему 0? Потому что null не хочет принимать в блоке списка тестов
                     byte[] response;//Переведенное сообщение ответа
                     string[] TestsList;
                     //---
                     //ПЕРЕМЕННЫЕ!
-                    object id, n, f, m, term, spec;
-                    BinaryFormatter binaryFormatter = new BinaryFormatter();
+                    object id, n, f, m, term=null, spec=null;//Поля для БД
+                    BinaryFormatter binaryFormatter = new BinaryFormatter();//Сериализатор
+                    List<string> result = new List<string>();//Список тестов
                     //---
                     switch (buf[0])
                     {
@@ -218,7 +219,8 @@ namespace TestingCenter_Server
                             //testlist_id (немножко передумал вариант)
                             //тут надо подключиться к базе данных, и по ID проверить, какая у человека специальность и семестестр (ЗАПОлНИТЬ С БАЗЫ ДАННЫХ speciality)------------
                             Console.WriteLine("Начинаю работу с TESTSLITS");//DEBUG
-                            Command = "SELECT * FROM students;";
+                            Command = "SELECT * FROM students WHERE Id="+buf[1]+";";
+                            Console.WriteLine("КОМАНДА НА СПИСОК ТЕСТОВ: "+Command);
                             database_commands.CommandText = Command;
                             SQLiteDataReader r_testslist = database_commands.ExecuteReader();
                             Console.WriteLine("Начинаю проход по БД");//DEBUG
@@ -230,16 +232,16 @@ namespace TestingCenter_Server
                                     //Нам нужно узнать специальность и семестр
                                     term = r_testslist.GetValue(4);//Столбик с семестром
                                     spec = r_testslist.GetValue(6);//Столбик со специальностью
-                                    //spec_term
-                                    send = "testslist\\" + spec.ToString() + "_" + term.ToString();//попадет в if\else и выберет нужный файлик для отправки клиенту
+                                    Console.WriteLine("TERM: "+term.ToString()+"\nSPEC: "+spec.ToString());
+                                    //send = "testslist\\" + spec.ToString() + "_" + term.ToString();//попадет в if\else и выберет нужный файлик для отправки клиенту
                                     break;
                                 }
                                 else
                                 {
-                                    send = "testslist_NNN";
+                                    send = null;
                                 }
                             }
-                            if (send.Equals("testslist_NNN"))
+                            if (send.Equals(null))
                             {
                                 //Не найден студент. Какой то значит косяк. Отправляем клиенту что ошибка базы данных.
                                 Console.WriteLine("No student");//DEBUG
@@ -248,14 +250,40 @@ namespace TestingCenter_Server
                             }
                             else
                             {
-                                send += ".txt";
-                                Console.WriteLine("FILE: " + send);//DEBUG
+                                if (spec != null && term != null)
+                                {
+                                    foreach (var a in Directory.GetFiles("tests"))
+                                    {
+                                        Console.WriteLine(a);
+                                        if (a.Contains(spec.ToString() +"_"+ term.ToString()))
+                                        {
+                                            result.Add(a);//Добавляем в список возможных тестов тот что подходит по spec+term (POIT_3)
+                                        }
+                                    }
+                                }
+                                //send += ".txt";
+                                //Console.WriteLine("FILE: " + send);//DEBUG
+                                for(int i=0;i<result.Count;i++)
+                                {
+                                    Console.WriteLine("Res:"+result[i]);
+                                }
                             }
                             r_testslist.Close();
                             //END
                             //string specialty = "POIT_2";//DEBUG----------------------------------------------------------------------
                             //string file = "testslist\\" + specialty + ".txt";//Файл с которого будет считывать вопросы и т.п.
-                            if (!File.Exists(send))
+                            if(result.Count!=0)
+                            {
+                                //Попробую. передать список, а принять как массив
+                                Console.WriteLine("Запуск сериализации result");
+                                binaryFormatter.Serialize(stream, result);
+                                Console.WriteLine("Окончил. Отправлено!");
+                            }
+                            else
+                            {
+                                //Хз че тут писать. Надо обработать косяк отстутствия файлов с заданной комбинацией
+                            }
+                            /*if (!File.Exists(send)) //ТУТ У НАС ТИПО ПРОШЛЫЙ ВАРИАНТ ОТПРАВКИ СПИСКА ТЕСТОВ ИЗ ФАЙЛИКА! Я ЕГО ЗАМЕНИЛ ВАРИАНТОМ ПОЛУЧШЕ
                             {
                                 Console.WriteLine("Файл списка тестов " + send + " не найден");
                                 send = "testslist_NNN";
@@ -266,11 +294,7 @@ namespace TestingCenter_Server
                             else
                             {
                                 TestsList = File.ReadAllLines(send);
-                                //Сериализировать и отправить сей массив-список тестов
-                                //Траблы с атрибутом, надо куда то выкинуть массив, где можно будет накинуть атрибут
-                                //Гы, теперь класс Програм может быть сериализован)
-                                BinaryFormatter formatter = new BinaryFormatter();
-                                formatter.Serialize(stream, TestsList);
+                                binaryFormatter.Serialize(stream, TestsList);
                                 Console.WriteLine("Запуск сериализации:");
                                 for (int i = 0; i < TestsList.Length; i++)
                                 {
@@ -279,12 +303,13 @@ namespace TestingCenter_Server
                                 Console.WriteLine("Список тестов сериализован!");//DEBUG
                                 //Я погуглил оно короче в юникоде все пересылает попробуй стринг билдер с UTF8 на UNICODE перевести мб пофиксится тот трабл с текстом
                                 //Но это неточно
-                            }
+                            }*/
                             break;
                         case "test":
                             //test_Math_3
+                            //test_POIT_3_Math
                             string[] TEST;
-                            string way= "tests\\" + buf[1]+ "_" + buf[2] + ".txt";
+                            string way= "tests\\"+buf[1]+ "_" + buf[2] +"_"+buf[3]+".txt";//Пока что убрал tests\\ в начале строки, т.к. нам сразу строки с путями передаются. Потом фиксанем
                             Console.WriteLine("WAY: "+way);
                             if(File.Exists(way))
                             {
