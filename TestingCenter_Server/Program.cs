@@ -185,8 +185,6 @@ namespace TestingCenter_Server
                                 }
                             }
                             r_login.Close();
-
-                            Console.WriteLine("Ended");//DEBUG
                                                        //send = "login_Сюняков_Андрей_Андреевич";//login_NNN    //DEBUG
                                                        //Очень важный тест!----------------------------------------------------------------------------------//DEBUG
                                                        //NetWriter.WriteLine(send);
@@ -195,35 +193,35 @@ namespace TestingCenter_Server
                                                        //NetReader.Close();
                             response = Encoding.UTF8.GetBytes(send);
                             stream.Write(response, 0, response.Length);
-                            Console.WriteLine("Ответ: " + send);
+                            Console.WriteLine("login: answ:" + send);
                             break;
                         case "mainscreen":
                             Command = "SELECT * FROM marks WHERE ID=" + buf[1] + ";";
-                            database_commands.CommandText= "SELECT count(*) FROM marks WHERE ID=" + buf[1] + ";";//DEBUG
-                            Console.WriteLine("Колчиество строк в ответе: "+database_commands.ExecuteScalar());//DEBUG
-                            Console.WriteLine("mainscreen: " + Command);
+                            //database_commands.CommandText= "SELECT count(*) FROM marks WHERE ID=" + buf[1] + ";";//DEBUG
+                            //Console.WriteLine("Колчиество строк в ответе: "+database_commands.ExecuteScalar());//DEBUG
+                            //Console.WriteLine("mainscreen: " + Command);
 
-                            Console.WriteLine("создаю адаптер");
+                            Console.WriteLine("mainscreen: Создаю адаптер");
                             SQLiteDataAdapter adapter = new SQLiteDataAdapter(Command, database.ConnectionString);
                             DataSet dataSet = new DataSet();
-                            Console.WriteLine("создал объект dataset");
+                            Console.WriteLine("mainscreen: Создал объект dataset");
                             adapter.Fill(dataSet);
-                            Console.WriteLine("заполнил объект");
+                            Console.WriteLine("mainscreen: Заполнил объект");
                             //Тут был binaryFormatter
-                            Console.WriteLine("сериализую");
+                            Console.WriteLine("mainscreen: Сериализую таблицу");
                             binaryFormatter.Serialize(stream, dataSet);//Сериализовали целый объект с выборкой по БД
-                            Console.WriteLine("ГОТОВО!");
+                            Console.WriteLine("mainscreen: ГОТОВО!");
                             break;
                         case "testslist":
                             //Список возможных тестов
                             //testlist_id (немножко передумал вариант)
                             //тут надо подключиться к базе данных, и по ID проверить, какая у человека специальность и семестестр (ЗАПОлНИТЬ С БАЗЫ ДАННЫХ speciality)------------
-                            Console.WriteLine("Начинаю работу с TESTSLITS");//DEBUG
+                            Console.WriteLine("testslist: Начинаю работу");//DEBUG
                             Command = "SELECT * FROM students WHERE Id="+buf[1]+";";
-                            Console.WriteLine("КОМАНДА НА СПИСОК ТЕСТОВ: "+Command);
+                            //Console.WriteLine("testslist: КОМАНДА НА СПИСОК ТЕСТОВ: " + Command);
                             database_commands.CommandText = Command;
                             SQLiteDataReader r_testslist = database_commands.ExecuteReader();
-                            Console.WriteLine("Начинаю проход по БД");//DEBUG
+                            Console.WriteLine("testslist: Начинаю проход по БД");//DEBUG
                             while (r_testslist.Read())
                             {
                                 id = r_testslist.GetValue(0);
@@ -232,7 +230,7 @@ namespace TestingCenter_Server
                                     //Нам нужно узнать специальность и семестр
                                     term = r_testslist.GetValue(4);//Столбик с семестром
                                     spec = r_testslist.GetValue(6);//Столбик со специальностью
-                                    Console.WriteLine("TERM: "+term.ToString()+"\nSPEC: "+spec.ToString());
+                                    //Console.WriteLine("TERM: "+term.ToString()+"\nSPEC: "+spec.ToString());
                                     //send = "testslist\\" + spec.ToString() + "_" + term.ToString();//попадет в if\else и выберет нужный файлик для отправки клиенту
                                     break;
                                 }
@@ -244,7 +242,7 @@ namespace TestingCenter_Server
                             if (send.Equals(null))
                             {
                                 //Не найден студент. Какой то значит косяк. Отправляем клиенту что ошибка базы данных.
-                                Console.WriteLine("No student");//DEBUG
+                                Console.WriteLine("testslist: No student");//DEBUG
                                 //Тут надо это дописать------------------------------------------------
                                 break;
                             }
@@ -265,7 +263,7 @@ namespace TestingCenter_Server
                                 //Console.WriteLine("FILE: " + send);//DEBUG
                                 for(int i=0;i<result.Count;i++)
                                 {
-                                    Console.WriteLine("Res:"+result[i]);
+                                    Console.WriteLine("testslist: Res:" + result[i]);
                                 }
                             }
                             r_testslist.Close();
@@ -275,9 +273,9 @@ namespace TestingCenter_Server
                             if(result.Count!=0)
                             {
                                 //Попробую. передать список, а принять как массив
-                                Console.WriteLine("Запуск сериализации result");
+                                Console.WriteLine("testslist: Запуск сериализации result");
                                 binaryFormatter.Serialize(stream, result);
-                                Console.WriteLine("Окончил. Отправлено!");
+                                Console.WriteLine("testslist: Операция завершена. Отправлено!");
                             }
                             else
                             {
@@ -310,7 +308,7 @@ namespace TestingCenter_Server
                             //test_POIT_3_Math
                             string[] TEST;
                             string way= "tests\\"+buf[1]+ "_" + buf[2] +"_"+buf[3]+".txt";//Пока что убрал tests\\ в начале строки, т.к. нам сразу строки с путями передаются. Потом фиксанем
-                            Console.WriteLine("WAY: "+way);
+                            Console.WriteLine("test: WAY: "+way);
                             if(File.Exists(way))
                             {
                                 TEST = File.ReadAllLines(way);
@@ -319,16 +317,17 @@ namespace TestingCenter_Server
                             {
                                 TEST = new string[0];
                             }
-                            Console.WriteLine("SIZE: "+TEST.Length);
+                            Console.WriteLine("test: SIZE: " + TEST.Length);
                             binaryFormatter.Serialize(stream, TEST);
-                            Console.WriteLine("ОКОНЧИЛ ОТПРАВКУ ФАЙЛА ТЕСТА");
+                            Console.WriteLine("test: Отправка данных окончена");
                             break;
                         default:
-                            Console.WriteLine("Вышел в дефаулт");
+                            Console.WriteLine("default: Неопознанный case");
                             break;
                     }
                     //
                     stream.Close();//Закрываем поток, когда закончили работать
+                    Console.WriteLine("-------------------------\nПоток закрыт\n-------------------------");
                 }
             }
             catch (Exception e)
