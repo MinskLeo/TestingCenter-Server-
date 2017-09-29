@@ -22,7 +22,7 @@ namespace TestingCenter_Server
         private static string command;//Для цикла while(true) - пишем вручную в консоль и считываем
         private static SQLiteConnection database;//Сама база данных
         private static SQLiteCommand database_commands;//Объект для отдачи команд БД
-        private static string Command;//Строка команды для SQL
+        private static string Command = "";//Строка команды для SQL
 
         static void Main(string[] args)
         {
@@ -45,7 +45,6 @@ namespace TestingCenter_Server
                 database = new SQLiteConnection("Data Source=databases\\Students.db;Version=3;UTF8Encoding=True;");
                 database.Open();//Открываем БД
                 database_commands = database.CreateCommand();//Создаем командный объект
-                Command = "";//Чисто чтобы не вылетал экзепшон
                 database_commands.CommandText = Command;//Чисто чтобы не вылетал экзепшон
                 Console.WriteLine("Статус : " + database.State);
                 //Конец блока с БД
@@ -71,7 +70,6 @@ namespace TestingCenter_Server
                                 Command = "SELECT count(*) FROM students";
                                 database_commands.CommandText = Command;
                                 Console.WriteLine("Rows: " + database_commands.ExecuteScalar());
-                                //-------------------------------------------------------------------Тут было кол во строк\столбцев
                             }
                             break;
 
@@ -110,7 +108,6 @@ namespace TestingCenter_Server
                 Console.WriteLine("Проблемы с базой данных");
                 Console.WriteLine(ex.Message + "\n" + ex.StackTrace);
                 tcp.Stop();
-                //th.Abort();
                 Console.WriteLine("Работа сервера остановлена.Нажмите любую клавишу для продолжения");
                 Console.ReadKey();
                 return;
@@ -270,7 +267,7 @@ namespace TestingCenter_Server
                                 Console.WriteLine("testslist: Операция завершена. Отправлено!");
                             }
                             else
-                            {
+                            { 
                                 //Хз че тут писать. Надо обработать косяк отстутствия файлов с заданной комбинацией
                             }
                            
