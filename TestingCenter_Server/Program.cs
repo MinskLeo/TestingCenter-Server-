@@ -321,6 +321,16 @@ namespace TestingCenter_Server
                             binaryFormatter.Serialize(stream, TEST);
                             Console.WriteLine("test: Отправка данных окончена");
                             break;
+                        case "testresult":
+                            //Надо добавить данные в таблицу
+                            //testresult_ID_Subject_Mark_Time
+                            Command = "INSERT INTO marks (ID,Date,Time,Subject,Mark) VALUES('"
+                                + buf[1] + "' ,'" + DateTime.Today.ToShortDateString() + "', '"
+                                + buf[4] + "', '" + buf[2] + "', '" + buf[3] + "');";
+                            Console.WriteLine("testresult: "+Command);
+                            database_commands.CommandText = Command;
+                            Console.WriteLine("testresult: Данные добавлены! STATUS: "+ database_commands.ExecuteNonQuery());
+                            break;
                         default:
                             Console.WriteLine("default: Неопознанный case");
                             break;
