@@ -30,12 +30,11 @@ namespace TestingCenter_Server
             {
                 while (true)
                 {
-                    Console.WriteLine("Port:");
-                    Port = Convert.ToInt32(Console.ReadLine());
-
+                    Console.WriteLine("Порт (8888 по умолчанию):");
+                    Port = Convert.ToInt32(Console.ReadLine().Trim());
                     if (Port <= 0)
                     {
-                        Console.WriteLine("Error!!! Port can't be <= 0");
+                        Console.WriteLine("Ошибка!!! Порт не может быть меньше или равен нулю");
                     }
                     else break;
 
@@ -48,7 +47,7 @@ namespace TestingCenter_Server
                     Name = "WaitingForClient"
                 };
                 th.Start();
-                Console.WriteLine("Server started!" + DateTime.Now);
+
 
                 //Тут блок связанный с БД
                 if (!File.Exists("databases\\Students.db"))
@@ -58,25 +57,25 @@ namespace TestingCenter_Server
                 database_commands = database.CreateCommand();//Создаем командный объект
                 Command = "";//Чисто чтобы не вылетал экзепшон
                 database_commands.CommandText = Command;//Чисто чтобы не вылетал экзепшон
-                Console.WriteLine("State: " + database.State);
-
+                Console.WriteLine("Статус : " + database.State);
                 //Конец блока с БД
                 while (true)
                 {
-                    command = Console.ReadLine();
+                    Console.WriteLine("Для получения списка команд введите /help");
+                    command = Console.ReadLine().Trim();
                     switch (command)
                     {
-                        case "stop":
+                        case "/stop":
                             if (th.IsAlive)
                             {
                                 tcp.Stop();
                                 th.Abort();
-                                Console.WriteLine("The server is stopped. Press any button to close the application");
+                                Console.WriteLine("Работа сервера остановлена.Нажмите любую клавишу для продолжения");
                                 Console.ReadKey();
                                 return;
                             }
                             break;
-                        case "database":
+                        case "/database":
                             Console.WriteLine("Database?:");
                             if (Console.ReadLine().Equals("info"))
                             {
@@ -87,10 +86,10 @@ namespace TestingCenter_Server
                             }
                             break;
 
-                        case "help":
-                            Console.WriteLine("stop - остановка сервер \ndatabase - просмотр базы данных\nclear_screen - очистка консоли");
+                        case "/help":
+                            Console.WriteLine("/stop - остановка сервер \n/database - просмотр базы данных\n/clear_screen - очистка консоли");
                             break;
-                        case "clear_screen":
+                        case "/clear_screen":
                             Console.Clear();
                             break;
                     }
@@ -103,11 +102,11 @@ namespace TestingCenter_Server
             catch (SQLiteException ex)//Проблемы с экзепшоном
             {
                 //Ловим траблы с БД
-                Console.WriteLine("Troubles with database:");
+                Console.WriteLine("Проблемы с базой данных");
                 Console.WriteLine(ex.Message + "\n" + ex.StackTrace);
                 tcp.Stop();
                 //th.Abort();
-                Console.WriteLine("The server is stopped. Press any button to close the application");
+                Console.WriteLine("Работа сервера остановлена.Нажмите любую клавишу для продолжения");
                 Console.ReadKey();
                 return;
             }
@@ -120,18 +119,13 @@ namespace TestingCenter_Server
                 tcp = new TcpListener(ip, Port);
                 tcp.Start();
                 Console.Clear();//DEBUG
-                Console.WriteLine("Port: " + Port);//DEBUG
+                Console.WriteLine("Порт: " + Port);//DEBUG
 
                 while (true)
                 {
                     TcpClient client = tcp.AcceptTcpClient();
                     NetworkStream stream = client.GetStream();
-                    //Тестим норм потоки. //DEBUG----------------------------------- Вплоть до ПРОВЕРИТЬ
-                    //StreamReader NetReader = new StreamReader(stream);
-                    //StreamWriter NetWriter = new StreamWriter(stream);
-                    //string message=NetReader.ReadLine();
-                    //NetReader.Close();
-                    //
+
 
                     byte[] data = new byte[256];
                     StringBuilder builder = new StringBuilder();
@@ -145,11 +139,12 @@ namespace TestingCenter_Server
 
 
                     string message = builder.ToString();
-                    Console.WriteLine("Request: " + message);
+                    Console.WriteLine("Запрос: " + message);
                     string[] buf = message.Split('_');
                     string send = "0";//Сообщение ответа. P.S. почему 0? Потому что null не хочет принимать в блоке списка тестов
                     byte[] response;//Переведенное сообщение ответа
-                    string[] TestsList;
+
+
                     //---
                     //ПЕРЕМЕННЫЕ!
                     object id, n, f, m, term=null, spec=null;//Поля для БД
@@ -181,12 +176,8 @@ namespace TestingCenter_Server
                                 }
                             }
                             r_login.Close();
-                                                       //send = "login_Сюняков_Андрей_Андреевич";//login_NNN    //DEBUG
-                                                       //Очень важный тест!----------------------------------------------------------------------------------//DEBUG
-                                                       //NetWriter.WriteLine(send);
-                                                       //NetWriter.Flush();
-                                                       //NetWriter.Close();
-                                                       //NetReader.Close();
+                                                     
+
                             response = Encoding.UTF8.GetBytes(send);
                             stream.Write(response, 0, response.Length);
                             Console.WriteLine("login: answ:" + send);
