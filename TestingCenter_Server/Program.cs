@@ -23,6 +23,7 @@ namespace TestingCenter_Server
         private static SQLiteConnection database;//Сама база данных
         private static SQLiteCommand database_commands;//Объект для отдачи команд БД
         private static string Command = "";//Строка команды для SQL
+ 
 
         static void Main(string[] args)
         {
@@ -41,7 +42,7 @@ namespace TestingCenter_Server
 
                 //Тут блок связанный с БД
                 if (!File.Exists("databases\\Students.db"))
-                    throw new SQLiteException();
+                {throw new SQLiteException();}  
                 database = new SQLiteConnection("Data Source=databases\\Students.db;Version=3;UTF8Encoding=True;");
                 database.Open();//Открываем БД
                 database_commands = database.CreateCommand();//Создаем командный объект
@@ -202,8 +203,6 @@ namespace TestingCenter_Server
                             Console.WriteLine("mainscreen: ГОТОВО!");
                             break;
                         case "testslist":
-                            //Список возможных тестов
-                            //testlist_id (немножко передумал вариант)
                             //тут надо подключиться к базе данных, и по ID проверить, какая у человека специальность и семестестр (ЗАПОлНИТЬ С БАЗЫ ДАННЫХ speciality)------------
                             Console.WriteLine("testslist: Начинаю работу");//DEBUG
                             Command = "SELECT * FROM students WHERE Id="+buf[1]+";";
@@ -267,8 +266,9 @@ namespace TestingCenter_Server
                                 Console.WriteLine("testslist: Операция завершена. Отправлено!");
                             }
                             else
-                            { 
+                            {
                                 //Хз че тут писать. Надо обработать косяк отстутствия файлов с заданной комбинацией
+                                Console.WriteLine("Ошибка!!! Отсутствие файлов");
                             }
                            
                             break;
