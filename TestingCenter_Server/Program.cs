@@ -61,7 +61,6 @@ namespace TestingCenter_Server
                 //Конец блока с БД
                 while (true)
                 {
-                    Console.WriteLine("Для получения списка команд введите /help");
                     command = Console.ReadLine().Trim();
                     switch (command)
                     {
@@ -91,6 +90,9 @@ namespace TestingCenter_Server
                             break;
                         case "/clear_screen":
                             Console.Clear();
+                            break;
+                        default:
+                            Console.WriteLine("Ошибка!!!\nДля получения списка команд введите /help");
                             break;
                     }
                 }
