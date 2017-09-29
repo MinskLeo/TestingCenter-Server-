@@ -86,18 +86,14 @@ namespace TestingCenter_Server
                                 //-------------------------------------------------------------------Тут было кол во строк\столбцев
                             }
                             break;
+
+                        case "help":
+                            Console.WriteLine("stop - остановка сервер \ndatabase - просмотр базы данных\nclear_screen - очистка консоли");
+                            break;
+                        case "clear_screen":
+                            Console.Clear();
+                            break;
                     }
-                    /*  if (command == "stop")
-                      {
-                          if (th.IsAlive)
-                          {
-                              tcp.Stop();
-                              th.Abort();
-                              Console.WriteLine("Сервер остановлен. Нажмите любую кнопку для закрытия приложения");
-                              Console.ReadKey();
-                              return; 
-                          }
-                      }*/
                 }
             }
             catch (FormatException)
@@ -281,27 +277,7 @@ namespace TestingCenter_Server
                             {
                                 //Хз че тут писать. Надо обработать косяк отстутствия файлов с заданной комбинацией
                             }
-                            /*if (!File.Exists(send)) //ТУТ У НАС ТИПО ПРОШЛЫЙ ВАРИАНТ ОТПРАВКИ СПИСКА ТЕСТОВ ИЗ ФАЙЛИКА! Я ЕГО ЗАМЕНИЛ ВАРИАНТОМ ПОЛУЧШЕ
-                            {
-                                Console.WriteLine("Файл списка тестов " + send + " не найден");
-                                send = "testslist_NNN";
-                                response = Encoding.UTF8.GetBytes(send);
-                                stream.Write(response, 0, response.Length);
-                                break;
-                            }
-                            else
-                            {
-                                TestsList = File.ReadAllLines(send);
-                                binaryFormatter.Serialize(stream, TestsList);
-                                Console.WriteLine("Запуск сериализации:");
-                                for (int i = 0; i < TestsList.Length; i++)
-                                {
-                                    Console.WriteLine(TestsList[i]);
-                                }
-                                Console.WriteLine("Список тестов сериализован!");//DEBUG
-                                //Я погуглил оно короче в юникоде все пересылает попробуй стринг билдер с UTF8 на UNICODE перевести мб пофиксится тот трабл с текстом
-                                //Но это неточно
-                            }*/
+                           
                             break;
                         case "test":
                             //test_Math_3
@@ -347,11 +323,4 @@ namespace TestingCenter_Server
         }
     }
 
-    /*[Serializable]//Сериализация
-    class Question
-    {
-        private string question;
-        private string q_count; 
-        private string[][] answers;
-    }*/
 }
