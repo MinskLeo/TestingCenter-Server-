@@ -28,17 +28,7 @@ namespace TestingCenter_Server
         {
             try
             {
-                while (true)
-                {
-                    Console.WriteLine("Порт (8888 по умолчанию):");
-                    Port = Convert.ToInt32(Console.ReadLine().Trim());
-                    if (Port <= 0)
-                    {
-                        Console.WriteLine("Ошибка!!! Порт не может быть меньше или равен нулю");
-                    }
-                    else break;
 
-                }
 
                 th = new Thread(WaitingForClient)
                 {
@@ -86,10 +76,23 @@ namespace TestingCenter_Server
                             break;
 
                         case "/help":
-                            Console.WriteLine("/stop - остановка сервер \n/database - просмотр базы данных\n/clear_screen - очистка консоли");
+                            Console.WriteLine("/stop - остановка сервера \n/database - просмотр базы данных\n/clear - очистка консоли\n/port - сменить порт");
                             break;
-                        case "/clear_screen":
+                        case "/clear":
                             Console.Clear();
+                            break;
+                        case"/port":
+                            while (true)
+                            {
+                                Console.WriteLine("Введите порт:");
+                                Port = Convert.ToInt32(Console.ReadLine().Trim());
+                                if (Port <= 0)
+                                {
+                                    Console.WriteLine("Ошибка!!! Порт не может быть меньше или равен нулю");
+                                }
+                                else break;
+                                Console.WriteLine("Порт изменен на: {0}",Port);
+                            }
                             break;
                         default:
                             Console.WriteLine("Ошибка!!!\nДля получения списка команд введите /help");
