@@ -1,4 +1,4 @@
-п»їusing System;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
@@ -15,8 +15,8 @@ namespace TestingCenter_Server
     {
         public void Login(string[] buf,ref SQLiteCommand database_commands,ref NetworkStream stream)
         {
-            //РџРѕРёСЃРє РїРѕ Р±Р°Р·Рµ РґР°РЅРЅС‹С…
-            string Command = "SELECT * FROM students WHERE Id=" + buf[1] + ";";//РўРёРїРѕ РІРѕСЂРєР°РµС‚       "SELECT Id FROM students WHERE Id="+buf[1]+";"
+            //Поиск по базе данных
+            string Command = "SELECT * FROM students WHERE Id=" + buf[1] + ";";//Типо воркает       "SELECT Id FROM students WHERE Id="+buf[1]+";"
             database_commands.CommandText = Command;
             SQLiteDataReader r_login = database_commands.ExecuteReader();
             object id, n, f, m;
@@ -46,26 +46,26 @@ namespace TestingCenter_Server
             string Command = "SELECT * FROM marks WHERE ID=" + buf[1] + ";";
             BinaryFormatter formatter = new BinaryFormatter();
 
-            Console.WriteLine("mainscreen: РЎРѕР·РґР°СЋ Р°РґР°РїС‚РµСЂ");
+            Console.WriteLine("mainscreen: Создаю адаптер");
             SQLiteDataAdapter adapter = new SQLiteDataAdapter(Command, Program.database.ConnectionString);
             DataSet dataSet = new DataSet();
-            Console.WriteLine("mainscreen: РЎРѕР·РґР°Р» РѕР±СЉРµРєС‚ dataset");
+            Console.WriteLine("mainscreen: Создал объект dataset");
             adapter.Fill(dataSet);
-            Console.WriteLine("mainscreen: Р—Р°РїРѕР»РЅРёР» РѕР±СЉРµРєС‚");
-            Console.WriteLine("mainscreen: РЎРµСЂРёР°Р»РёР·РёСЂСѓСЋ С‚Р°Р±Р»РёС†Сѓ");
-            formatter.Serialize(stream, dataSet);//РЎРµСЂРёР°Р»РёР·РѕРІР°Р»Рё С†РµР»С‹Р№ РѕР±СЉРµРєС‚ СЃ РІС‹Р±РѕСЂРєРѕР№ РїРѕ Р‘Р”
-            Console.WriteLine("mainscreen: Р“РћРўРћР’Рћ!");
+            Console.WriteLine("mainscreen: Заполнил объект");
+            Console.WriteLine("mainscreen: Сериализирую таблицу");
+            formatter.Serialize(stream, dataSet);//Сериализовали целый объект с выборкой по БД
+            Console.WriteLine("mainscreen: ГОТОВО!");
         }
         public void Testlist(string[] buf, ref SQLiteCommand database_commands, ref NetworkStream stream)
         {
             List<string> result = new List<string>();
             BinaryFormatter formatter = new BinaryFormatter();
 
-            Console.WriteLine("testslist: РќР°С‡РёРЅР°СЋ СЂР°Р±РѕС‚Сѓ");
+            Console.WriteLine("testslist: Начинаю работу");
             string Command = "SELECT * FROM students WHERE Id=" + buf[1] + ";";
             database_commands.CommandText = Command;
             SQLiteDataReader r_testslist = database_commands.ExecuteReader();
-            Console.WriteLine("testslist: РќР°С‡РёРЅР°СЋ РїСЂРѕС…РѕРґ РїРѕ Р‘Р”");
+            Console.WriteLine("testslist: Начинаю проход по БД");
             object id = null;
             object term = null;
             object spec = null;
@@ -86,7 +86,7 @@ namespace TestingCenter_Server
             }
             if (send.Equals(null))
             {
-                //РќРµ РЅР°Р№РґРµРЅ СЃС‚СѓРґРµРЅС‚. РљР°РєРѕР№ С‚Рѕ Р·РЅР°С‡РёС‚ РєРѕСЃСЏРє. РћС‚РїСЂР°РІР»СЏРµРј РєР»РёРµРЅС‚Сѓ С‡С‚Рѕ РѕС€РёР±РєР° Р±Р°Р·С‹ РґР°РЅРЅС‹С….
+                //Не найден студент. Какой то значит косяк. Отправляем клиенту что ошибка базы данных.
                 Console.WriteLine("testslist: No student");//DEBUG
                 formatter.Serialize(null, stream);
             }
@@ -112,14 +112,14 @@ namespace TestingCenter_Server
             r_testslist.Close();
             if (result.Count != 0)
             {
-                //РџРѕРїСЂРѕР±СѓСЋ. РїРµСЂРµРґР°С‚СЊ СЃРїРёСЃРѕРє, Р° РїСЂРёРЅСЏС‚СЊ РєР°Рє РјР°СЃСЃРёРІ
-                Console.WriteLine("testslist: Р—Р°РїСѓСЃРє СЃРµСЂРёР°Р»РёР·Р°С†РёРё result");
+                //Попробую. передать список, а принять как массив
+                Console.WriteLine("testslist: Запуск сериализации result");
                 formatter.Serialize(stream, result);
-                Console.WriteLine("testslist: РћРїРµСЂР°С†РёСЏ Р·Р°РІРµСЂС€РµРЅР°. РћС‚РїСЂР°РІР»РµРЅРѕ!");
+                Console.WriteLine("testslist: Операция завершена. Отправлено!");
             }
             else
             {
-                //РҐР· С‡Рµ С‚СѓС‚ РїРёСЃР°С‚СЊ. РќР°РґРѕ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ РєРѕСЃСЏРє РѕС‚СЃС‚СѓС‚СЃС‚РІРёСЏ С„Р°Р№Р»РѕРІ СЃ Р·Р°РґР°РЅРЅРѕР№ РєРѕРјР±РёРЅР°С†РёРµР№
+                //Хз че тут писать. Надо обработать косяк отстутствия файлов с заданной комбинацией
             }
         }
         public void Test(string[] buf, ref NetworkStream stream)
@@ -138,7 +138,7 @@ namespace TestingCenter_Server
             }
             Console.WriteLine("test: SIZE: " + TEST.Length);
             formatter.Serialize(stream, TEST);
-            Console.WriteLine("test: РћС‚РїСЂР°РІРєР° РґР°РЅРЅС‹С… РѕРєРѕРЅС‡РµРЅР°");
+            Console.WriteLine("test: Отправка данных окончена");
         }
         public void TestResult(string[] buf, ref SQLiteCommand database_commands)
         {
@@ -147,22 +147,22 @@ namespace TestingCenter_Server
                 + buf[4] + "', '" + buf[2] + "', '" + buf[3] + "');";
             Console.WriteLine("testresult: " + Command);
             database_commands.CommandText = Command;
-            Console.WriteLine("testresult: Р”Р°РЅРЅС‹Рµ РґРѕР±Р°РІР»РµРЅС‹! STATUS: " + database_commands.ExecuteNonQuery());
+            Console.WriteLine("testresult: Данные добавлены! STATUS: " + database_commands.ExecuteNonQuery());
         }
         public void DateResults(string[] buf, ref NetworkStream stream)
         {
             BinaryFormatter formatter = new BinaryFormatter();
             string Command = "SELECT * FROM marks WHERE ID=" + buf[1] + " AND Date BETWEEN " + "'" + buf[2] + "' AND '" + buf[3] + "';";
 
-            Console.WriteLine("dataresult: РЎРѕР·РґР°СЋ Р°РґР°РїС‚РµСЂ");
+            Console.WriteLine("dataresult: Создаю адаптер");
             SQLiteDataAdapter adapter1 = new SQLiteDataAdapter(Command, Program.database.ConnectionString);
             DataSet dataSet1 = new DataSet();
-            Console.WriteLine("dataresult: РЎРѕР·РґР°Р» РѕР±СЉРµРєС‚ dataset");
+            Console.WriteLine("dataresult: Создал объект dataset");
             adapter1.Fill(dataSet1);
-            Console.WriteLine("dataresult: Р—Р°РїРѕР»РЅРёР» РѕР±СЉРµРєС‚");
-            Console.WriteLine("mainscreen: РЎРµСЂРёР°Р»РёР·СѓСЋ С‚Р°Р±Р»РёС†Сѓ");
-            formatter.Serialize(stream, dataSet1);//РЎРµСЂРёР°Р»РёР·РѕРІР°Р»Рё С†РµР»С‹Р№ РѕР±СЉРµРєС‚ СЃ РІС‹Р±РѕСЂРєРѕР№ РїРѕ Р‘Р”
-            Console.WriteLine("dataresult: Р“РћРўРћР’Рћ!");
+            Console.WriteLine("dataresult: Заполнил объект");
+            Console.WriteLine("mainscreen: Сериализую таблицу");
+            formatter.Serialize(stream, dataSet1);//Сериализовали целый объект с выборкой по БД
+            Console.WriteLine("dataresult: ГОТОВО!");
         }
     }
     [Serializable]
@@ -171,39 +171,39 @@ namespace TestingCenter_Server
         [NonSerialized]
         private static int Port = 8888;
         [NonSerialized]
-        private static Thread th;//РџРѕС‚РѕРє РѕР¶РёРґР°РЅРёСЏ РєР»РёРµРЅС‚Р°
+        private static Thread th;//Поток ожидания клиента
         [NonSerialized]
-        private static TcpListener tcp;//РћР±СЉРµРєС‚, СЃ РїРѕРѕРјС‰СЊСЋ РєРѕС‚РѕСЂРѕРіРѕ РјС‹ РїСЂРѕСЃР»СѓС€РёРІР°РЅРёСЏ РїРѕРґРєР»СЋС‡РµРЅРёР№
+        private static TcpListener tcp;//Объект, с поомщью которого мы прослушивания подключений
         [NonSerialized]
-        private static string command;//Р”Р»СЏ С†РёРєР»Р° while(true) - РїРёС€РµРј РІСЂСѓС‡РЅСѓСЋ РІ РєРѕРЅСЃРѕР»СЊ Рё СЃС‡РёС‚С‹РІР°РµРј
+        private static string command;//Для цикла while(true) - пишем вручную в консоль и считываем
         [NonSerialized]
-        public static SQLiteConnection database;//РЎР°РјР° Р±Р°Р·Р° РґР°РЅРЅС‹С…
+        public static SQLiteConnection database;//Сама база данных
         [NonSerialized]
-        private static SQLiteCommand database_commands;//РћР±СЉРµРєС‚ РґР»СЏ РѕС‚РґР°С‡Рё РєРѕРјР°РЅРґ Р‘Р”
+        private static SQLiteCommand database_commands;//Объект для отдачи команд БД
         [NonSerialized]
-        private static string Command;//РЎС‚СЂРѕРєР° РєРѕРјР°РЅРґС‹ РґР»СЏ SQL
+        private static string Command;//Строка команды для SQL
 
         private static void PortScanning()//[TEST] int
         {
-            Console.WriteLine("РџРѕСЂС‚ (enter РґР»СЏ РїРѕСЂС‚Р° 8888 РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ):");
+            Console.WriteLine("Порт (enter для порта 8888 по умолчанию):");
             while (true)
             {
                 string buf = Console.ReadLine();
                 int outer = 0;
-                bool parsing = int.TryParse(buf, out outer);//РџРµСЂРµРјРµРЅРЅР°СЏ РїР°СЂСЃРµСЂР°
-                bool equal = buf.Equals("");//Р—РЅР°С‡РµРЅРёРµ, СѓРєР°Р·С‹РІР°СЋС‰РµРµ РЅР° РїСѓСЃС‚РѕР№ РІРІРѕРґ
+                bool parsing = int.TryParse(buf, out outer);//Переменная парсера
+                bool equal = buf.Equals("");//Значение, указывающее на пустой ввод
                 if (buf.Equals(""))
                 {
-                    Console.WriteLine("РџРѕСЂС‚ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ");
+                    Console.WriteLine("Порт установлен по умолчанию");
                     break;
                 }
                 else if (!equal && !parsing)
                 {
-                    Console.WriteLine("РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ РІРІРѕРґ");
+                    Console.WriteLine("Некорректный ввод");
                 }
                 else if (!equal && parsing && outer <= 0)
                 {
-                    Console.WriteLine("РџРѕСЂС‚ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Рј Р·РЅР°С‡РµРЅРёРµРј РР›Р СЂР°РІРЅС‹Рј 0!");
+                    Console.WriteLine("Порт не может быть отрицательным значением ИЛИ равным 0!");
                 }
                 else
                 {
@@ -227,58 +227,64 @@ namespace TestingCenter_Server
                 th.Start();
 
 
-                //РўСѓС‚ Р±Р»РѕРє СЃРІСЏР·Р°РЅРЅС‹Р№ СЃ Р‘Р”
+                //Тут блок связанный с БД
                 if (!File.Exists("databases\\Students.db"))
                     throw new SQLiteException();
                 database = new SQLiteConnection("Data Source=databases\\Students.db;Version=3;UTF8Encoding=True;");
-                database.Open();//РћС‚РєСЂС‹РІР°РµРј Р‘Р”
-                database_commands = database.CreateCommand();//РЎРѕР·РґР°РµРј РєРѕРјР°РЅРґРЅС‹Р№ РѕР±СЉРµРєС‚
-                Command = "";//Р§РёСЃС‚Рѕ С‡С‚РѕР±С‹ РЅРµ РІС‹Р»РµС‚Р°Р» СЌРєР·РµРїС€РѕРЅ
-                database_commands.CommandText = Command;//Р§РёСЃС‚Рѕ С‡С‚РѕР±С‹ РЅРµ РІС‹Р»РµС‚Р°Р» СЌРєР·РµРїС€РѕРЅ
-                //РљРѕРЅРµС† Р±Р»РѕРєР° СЃ Р‘Р”
+                database.Open();//Открываем БД
+                database_commands = database.CreateCommand();//Создаем командный объект
+                Command = "";//Чисто чтобы не вылетал экзепшон
+                database_commands.CommandText = Command;//Чисто чтобы не вылетал экзепшон
+                //Конец блока с БД
                 while (true)
                 {
-                    //Console.WriteLine("Р”Р»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СЃРїРёСЃРєР° РєРѕРјР°РЅРґ РІРІРµРґРёС‚Рµ: help");
-                    command = Console.ReadLine().Trim().ToLower();
+                    //Console.WriteLine("Для получения списка команд введите: help");
+                    command = Console.ReadLine().Trim();
                     switch (command)
                     {
+                        case "STOP":
+                        case "Stop":
                         case "stop":
                             if (th.IsAlive)
                             {
                                 tcp.Stop();
                                 th.Abort();
-                                Console.WriteLine("Р Р°Р±РѕС‚Р° СЃРµСЂРІРµСЂР° РѕСЃС‚Р°РЅРѕРІР»РµРЅР°.РќР°Р¶РјРёС‚Рµ Р»СЋР±СѓСЋ РєР»Р°РІРёС€Сѓ РґР»СЏ РїСЂРѕРґРѕР»Р¶РµРЅРёСЏ");
+                                Console.WriteLine("Работа сервера остановлена.Нажмите любую клавишу для продолжения");
                                 Console.ReadKey();
                                 return;
                             }
                             break;
+                        case "Help":
+                        case "HELP":
                         case "help":
-                            Console.WriteLine("stop - РѕСЃС‚Р°РЅРѕРІРєР° СЃРµСЂРІРµСЂР°");
-                            Console.WriteLine("cls - РѕС‡РёСЃС‚РєР° РєРѕРЅСЃРѕР»Рё");
+                            Console.WriteLine("stop - остановка сервера");
+                            Console.WriteLine("cls - очистка консоли");
                             break;
+                        case "Cls":
+                        case "CLS":
                         case "cls":
                             Console.Clear();
                             break;
                         case "":
                         default:
-                            Console.WriteLine("Р”Р»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СЃРїРёСЃРєР° РєРѕРјР°РЅРґ РІРІРµРґРёС‚Рµ: help");
+                            Console.WriteLine("Для получения списка команд введите: help");
                             break;
                     }
                 }
             }
             catch (FormatException)
             {
-                Console.WriteLine("РћС€РёР±РєР° РІРІРѕРґР° [Exception]");
+                Console.WriteLine("Ошибка ввода [Exception]");
                 Main(null);
             }
-            catch (SQLiteException ex)//РџСЂРѕР±Р»РµРјС‹ СЃ СЌРєР·РµРїС€РѕРЅРѕРј
+            catch (SQLiteException ex)//Проблемы с экзепшоном
             {
-                //Р›РѕРІРёРј РёСЃРєР»СЋС‡РµРЅРёСЏ РїСЂРё СЂР°Р±РѕС‚Рµ СЃ Р‘Р”
-                Console.WriteLine("РџСЂРѕР±Р»РµРјС‹ СЃ Р±Р°Р·РѕР№ РґР°РЅРЅС‹С…");
+                //Ловим исключения при работе с БД
+                Console.WriteLine("Проблемы с базой данных");
                 Console.WriteLine(ex.Message + "\n" + ex.StackTrace);
                 tcp.Stop();
                 //th.Abort();
-                Console.WriteLine("Р Р°Р±РѕС‚Р° СЃРµСЂРІРµСЂР° РѕСЃС‚Р°РЅРѕРІР»РµРЅР°.РќР°Р¶РјРёС‚Рµ Р»СЋР±СѓСЋ РєР»Р°РІРёС€Сѓ РґР»СЏ РїСЂРѕРґРѕР»Р¶РµРЅРёСЏ");
+                Console.WriteLine("Работа сервера остановлена.Нажмите любую клавишу для продолжения");
                 Console.ReadKey();
                 return;
             }
@@ -291,7 +297,7 @@ namespace TestingCenter_Server
                 tcp = new TcpListener(ip, Port);
                 tcp.Start();
                 //Console.Clear();
-                Console.WriteLine("РџРѕСЂС‚: " + Port);
+                Console.WriteLine("Порт: " + Port);
 
                 while (true)
                 {
@@ -310,11 +316,11 @@ namespace TestingCenter_Server
                     while (stream.DataAvailable);
 
                     string message = builder.ToString();
-                    Console.WriteLine("Р—Р°РїСЂРѕСЃ: " + message);
+                    Console.WriteLine("Запрос: " + message);
                     string[] buf = message.Split('_');
 
                     //---
-                    //РџР•Р Р•РњР•РќРќР«Р•!
+                    //ПЕРЕМЕННЫЕ!
                     Commands CommandCenter = new Commands();
                     //---
                     switch (buf[0])
@@ -338,12 +344,12 @@ namespace TestingCenter_Server
                             CommandCenter.DateResults(buf, ref stream);
                             break;
                         default:
-                            Console.WriteLine("default: РќРµРѕРїРѕР·РЅР°РЅРЅС‹Р№ case");
+                            Console.WriteLine("default: Неопознанный case");
                             break;
                     }
                     //
-                    stream.Close();//Р—Р°РєСЂС‹РІР°РµРј РїРѕС‚РѕРє, РєРѕРіРґР° Р·Р°РєРѕРЅС‡РёР»Рё СЂР°Р±РѕС‚Р°С‚СЊ
-                    Console.WriteLine("-------------------------\nРџРѕС‚РѕРє Р·Р°РєСЂС‹С‚\n-------------------------");
+                    stream.Close();//Закрываем поток, когда закончили работать
+                    Console.WriteLine("-------------------------\nПоток закрыт\n-------------------------");
                 }
             }
             catch (Exception e)
